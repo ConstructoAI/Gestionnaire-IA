@@ -15,12 +15,12 @@ d'application.
 |---|---|---|
 | **Outlook classique** | il s'ouvre depuis `Program Files\Microsoft Office\` | ⛔ Celui du **Microsoft Store n'expose pas MAPI/COM** — rien ne fonctionnera. Installer Outlook classique. |
 | **Python 3.x** | `python --version` | [python.org](https://www.python.org) — cocher « Add to PATH » |
-| **pywin32** | `python -c "import win32com.client"` | `pip install pywin32` |
+| **pywin32** | `python -c "import win32com.client"` | rien à faire — **le `.bat` l'installe seul** |
 | **Claude Code** | `claude --version` | [claude.com/claude-code](https://claude.com/claude-code) |
 
 ---
 
-## Installation — trois minutes
+## Installation — deux gestes
 
 **1. Copier le dossier `.claude`** dans le dossier de travail : celui qui contient déjà vos
 projets, généralement un dossier OneDrive ou SharePoint synchronisé.
@@ -32,13 +32,10 @@ Mon dossier de travail\
    02. CLIENTS\
 ```
 
-**2. Installer les dépendances Python :**
+**2. Double-cliquer `.claude\Constructo_AI.bat`.**
 
-```
-pip install -r ".claude\requirements.txt"
-```
-
-**3. Double-cliquer `.claude\Poste.bat`.**
+C'est tout. Au premier lancement il installe `pywin32` lui-même — vous n'avez aucune
+commande à taper.
 
 Il se replace tout seul au bon niveau, ouvre Outlook, **attend que la boîte réponde vraiment**,
 et démarre la session. Si quelque chose manque, il le dit au lieu de faire semblant.
@@ -108,7 +105,7 @@ supprimer définitivement, signaler toute adresse inconnue. Celles-là protègen
 | `profiles\` | votre signature, vos profils métier |
 | `ETAT_*.md` · `JOURNAL.md` | 🛰️ la mémoire — **ne se chargent pas seuls**, ils grossissent à l'usage |
 | `references\depannage.md` | boîte vide, synchronisation figée, mode sans échec |
-| `Poste.bat` | le point d'entrée |
+| `Constructo_AI.bat` | le point d'entrée |
 
 ---
 
@@ -117,7 +114,7 @@ supprimer définitivement, signaler toute adresse inconnue. Celles-là protègen
 🔴 **Les fichiers de `.claude\` doivent rester en fins de ligne LF.** Un fichier d'agent en CRLF
 **ne s'enregistre pas** — il disparaît de la liste sans aucune erreur. Une compétence et un
 `CLAUDE.md` en CRLF, eux, fonctionnent quand même : c'est une panne **partielle**, donc
-invisible. `Poste.bat`, lui, doit rester en **CRLF** (exigence de `cmd.exe`).
+invisible. `Constructo_AI.bat`, lui, doit rester en **CRLF** (exigence de `cmd.exe`).
 
 ```
 python -c "d=open(r'.claude\agents\courriels.md','rb').read(); print('CRLF' if b'\r\n' in d else 'LF')"

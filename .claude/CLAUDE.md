@@ -19,14 +19,14 @@ les **courriels**, le **calendrier**, les **dossiers de projets**, et la **compt
 
 ## 0. Point d'entrée
 
-**Double-cliquer `Poste.bat`.** Il vérifie l'outillage, ouvre Outlook, **attend que MAPI
+**Double-cliquer `Constructo_AI.bat`.** Il vérifie l'outillage, ouvre Outlook, **attend que MAPI
 réponde vraiment** (pas seulement que le processus existe), met Claude à jour, puis lance la
 session. Si l'outillage manque, il passe en **mode dégradé** et le dit au lieu de faire
 semblant.
 
 | Élément | Rôle |
 |---|---|
-| `Poste.bat` | le point d'entrée |
+| `Constructo_AI.bat` | le point d'entrée |
 | `.claude\CLAUDE.md` | ce fichier — **il fait foi**, et se charge tout seul |
 | `.claude\settings.json` | `bypassPermissions` + les deux hooks |
 | `.claude\scripts\` | **le moteur** : `outlook_mail.py`, `outlook_calendar.py`, `veille_poste.py`, `check_setup.py` |
@@ -112,7 +112,7 @@ retirée (IMAP/POP fin 2022, SMTP AUTH avril 2026).
 | Prérequis | |
 |---|---|
 | **Outlook classique** | celui du Microsoft Store **n'expose pas MAPI/COM** — le kit ne sait pas le piloter |
-| **Python 3.x + pywin32** | `pip install -r .claude\requirements.txt` |
+| **Python 3.x** | `pywin32` est installé automatiquement par `Constructo_AI.bat` |
 | **Claude Code** | `claude.cmd` accessible dans le PATH |
 
 ### Vérifier au démarrage

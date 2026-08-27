@@ -29,17 +29,20 @@ inscription d'application.
 
 ---
 
-## Installation — trois minutes
+## Installation — deux gestes
 
 ```
 1. Copier le dossier .claude dans votre dossier de travail
-2. pip install -r ".claude\requirements.txt"
-3. Double-cliquer .claude\Poste.bat
+2. Double-cliquer .claude\Constructo_AI.bat
 ```
 
-Le `.bat` se replace tout seul au bon niveau, ouvre Outlook, **attend que la boîte réponde
-vraiment**, puis démarre la session. Si quelque chose manque, il le dit au lieu de faire
-semblant.
+**C'est tout.** Le `.bat` se replace tout seul au bon niveau, **installe la dépendance Python
+si elle manque** — une seule fois, sans rien vous demander — ouvre Outlook, **attend que la
+boîte réponde vraiment**, puis démarre la session.
+
+Si quelque chose manque, il le dit au lieu de faire semblant : Outlook du Store, Python
+absent, Claude Code non installé — chaque cas a son message et sa marche à suivre. Rien ne
+plante en silence.
 
 Détail complet : **[INSTALLATION.md](.claude/INSTALLATION.md)**
 
@@ -48,7 +51,7 @@ Détail complet : **[INSTALLATION.md](.claude/INSTALLATION.md)**
 | | |
 |---|---|
 | **Outlook classique** | ⛔ celui du Microsoft Store **n'expose pas MAPI/COM** |
-| **Python 3.x** + `pywin32` | une seule dépendance |
+| **Python 3.x** | `pywin32` s'installe tout seul au premier lancement |
 | **Claude Code** | [claude.com/claude-code](https://claude.com/claude-code) |
 | **Windows** | MAPI/COM est propre à Windows |
 
@@ -90,7 +93,7 @@ faux.** C'est contre ça que ce poste est construit.
                                       factures · check_setup · ost_reader
    skills/ · agents/      la méthode, et un agent délégué pour les passes longues
    ETAT_*.md · JOURNAL.md la mémoire — ne se charge PAS toute seule
-   Poste.bat              le point d'entrée
+   Constructo_AI.bat      le point d'entrée — un double-clic, c'est tout
 ```
 
 **Le hub reste petit, la mémoire grossit à côté.** Les cinq satellites ne se chargent pas

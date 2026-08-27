@@ -1,0 +1,12 @@
+# Poste de travail Outlook pour Claude Code
+# Une gracieusete de Sylvain Leduc - Constructo AI inc.
+#
+# UNE SEULE dependance. Elle donne acces a MAPI/COM, c'est-a-dire a Outlook :
+# les modules win32com.client et pythoncom en proviennent tous les deux.
+#
+#     pip install -r ".claude\requirements.txt"
+#
+# Rien d'autre n'est requis : les scripts n'utilisent que la bibliotheque
+# standard de Python. Aucun paquet web, aucune base de donnees, aucun service.
+
+pywin32>=306

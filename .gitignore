@@ -1,0 +1,12 @@
+# etat local de la veille : propre a chaque poste, jamais partage
+.claude/.veille_poste_state.json
+.claude/.bridge_state.json
+
+# caches Python
+__pycache__/
+*.pyc
+
+# signatures et profils reels : chacun met les siens
+.claude/profiles/signature_*.html
+!.claude/profiles/signature_MODELE.html
+!.claude/profiles/signature_defaut.html

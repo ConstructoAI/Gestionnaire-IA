@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "defaultMode": "bypassPermissions"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+            "args": [
+              "-NoProfile",
+              "-NonInteractive",
+              "-Command",
+              "$f=Join-Path (Get-Location) '.claude\\CLAUDE.md'; if (Test-Path -LiteralPath $f) { $j=[int]((Get-Date)-(Get-Item -LiteralPath $f).LastWriteTime).TotalDays } else { $j=-1 }; $n=''; if (Test-Path -LiteralPath $f) { if ((Get-Content -LiteralPath $f -Raw) -match 'GABARIT-VIERGE') { $n='GABARIT ENCORE VIERGE : des sections A COMPLETER attendent les donnees de cette entreprise. Les remplir au fil des mesures, jamais d avance. ' } }; Write-Output ('{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"FICHIERS VIVANTS - .claude/CLAUDE.md fait foi et se charge seul (acces Outlook, calendrier, projets, comptabilite); modifie il y a __J__ jour(s). CINQ satellites dans .claude/ ne se chargent PAS et se lisent a la demande: ETAT_projets, ETAT_calendrier, ETAT_courriels_poste, ETAT_comptabilite, JOURNAL.md. __NEUF__ CONDITION PERMANENTE: des qu une mesure contredit ou complete l un d eux, tu le corriges DANS LE MEME TOUR, en REMPLACANT la ligne fausse. Mesurer d abord, conclure ensuite : un chiffre sans la commande qui le fonde ne vaut rien, et un zero sans temoin positif n est pas une mesure.\"}}'.Replace('__J__',[string]$j).Replace('__NEUF__',$n))"
+            ],
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+            "args": [
+              "-NoProfile",
+              "-NonInteractive",
+              "-Command",
+              "Write-Output '{\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"CONDITION PERMANENTE - FICHIERS VIVANTS. Si ce tour mesure, decouvre ou corrige quoi que ce soit qui contredit ou complete l un d eux, tu le corriges DANS CE TOUR, date et commande a l appui. Tous dans .claude/ : (1) CLAUDE.md - le hub, charge automatiquement : acces, regles, carte, pieges. (2) ETAT_projets.md: etat client, decisions et leur POURQUOI. (3) ETAT_calendrier.md: jalons qui ont glisse, recurrences. (4) ETAT_courriels_poste.md: engagements pris. (5) ETAT_comptabilite.md: entites, obligations fiscales, anomalies datees - aucun montant courant. (6) JOURNAL.md: l histoire, APPEND-ONLY. Chacun a UN travail: ne jamais recopier dans l un ce qui appartient a un autre. Une ligne fausse se REMPLACE. Une section vide se lit PAS ENCORE CONSIGNE, jamais RIEN NE S EST PASSE. Si rien ne l exige, tu ne touches a rien et tu ne le mentionnes pas.\"}}'"
+            ],
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

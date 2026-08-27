@@ -1,0 +1,32 @@
+# ============================================================================
+#  FINS DE LIGNE — CE FICHIER N'EST PAS COSMETIQUE
+#
+#  Un fichier d'agent en CRLF n'est PAS enregistre par Claude Code : le
+#  frontmatter attend "---\n", et avec "---\r\n" l'agent disparait de la liste
+#  des subagent_type SANS AUCUNE ERREUR. Une competence et un CLAUDE.md en CRLF,
+#  eux, continuent de fonctionner : c'est une panne PARTIELLE, donc invisible.
+#
+#  Sans ces regles, core.autocrlf=true (le defaut sur Windows) convertit tout au
+#  clone et casse l'agent chez chaque personne qui telecharge ce depot.
+# ============================================================================
+
+# Par defaut : jamais de conversion automatique.
+*                       -text
+
+# Tout ce qui vit dans .claude/ doit rester en LF.
+.claude/**              text eol=lf
+.claude/*.md            text eol=lf
+.claude/**/*.md         text eol=lf
+.claude/*.json          text eol=lf
+.claude/**/*.py         text eol=lf
+.claude/**/*.html       text eol=lf
+.claude/*.txt           text eol=lf
+
+# Le .bat, lui, DOIT rester en CRLF : cmd.exe l'exige.
+*.bat                   text eol=crlf
+
+# Racine
+*.md                    text eol=lf
+LICENSE                 text eol=lf
+.gitignore              text eol=lf
+.gitattributes          text eol=lf

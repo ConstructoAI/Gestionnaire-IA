@@ -1,10 +1,14 @@
 # Gestionnaire IA
 
-**Gérez vos courriels, votre calendrier, vos dossiers et votre comptabilité avec Claude —
-directement sur votre Outlook.**
+**Gérez vos courriels, votre calendrier, vos dossiers et votre comptabilité directement avec
+Claude AI — l'assistant d'Anthropic, branché sur votre propre boîte Outlook.**
+
+Vous écrivez à Claude en français, il travaille dans votre vraie boîte : il lit vos messages,
+répond, classe, remplit votre calendrier et calcule vos factures. Rien n'est exporté, rien ne
+transite par un service tiers.
 
 Copiez un dossier, double-cliquez un fichier. Aucun mot de passe, aucun jeton, aucune
-inscription d'application, aucun service en ligne.
+inscription d'application.
 
 > ### Une gracieuseté de **Sylvain Leduc**, président de **Constructo AI inc.**
 > *Écosystème intelligent pour la construction au Québec* ·

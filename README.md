@@ -52,7 +52,7 @@ Détail complet : **[INSTALLATION.md](.claude/INSTALLATION.md)**
 |---|---|
 | **Outlook classique** | ⛔ celui du Microsoft Store **n'expose pas MAPI/COM** |
 | **Python 3.x** | `pywin32` s'installe tout seul au premier lancement |
-| **Claude Code** | [claude.com/claude-code](https://claude.com/claude-code) |
+| **Claude Code** | [claude.com/claude-code](https://claude.com/claude-code) — **abonnement Claude payant** |
 | **Windows** | MAPI/COM est propre à Windows |
 
 ---
@@ -157,6 +157,16 @@ C'est aussi la seule voie qui tienne : l'authentification de base d'Exchange Onl
 
 ⚠️ Le dossier étant destiné à un espace synchronisé, **n'y écrivez jamais de secret**. Les
 fichiers de mémoire sont conçus pour *pointer vers* ces informations, pas pour les contenir.
+
+---
+
+## Ce qui est gratuit, et ce qui ne l'est pas
+
+**Ce dépôt est gratuit et le restera** : licence MIT, aucune condition, aucune donnée qui
+remonte à qui que ce soit. Tout tourne sur votre poste.
+
+**Claude Code, lui, demande un abonnement Claude payant.** Ce n'est pas nous qui le vendons
+et nous n'en tirons rien — mais autant le savoir avant d'installer Python pour rien.
 
 ---
 

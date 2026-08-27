@@ -16,7 +16,7 @@ d'application.
 | **Outlook classique** | il s'ouvre depuis `Program Files\Microsoft Office\` | ⛔ Celui du **Microsoft Store n'expose pas MAPI/COM** — rien ne fonctionnera. Installer Outlook classique. |
 | **Python 3.x** | `python --version` | [python.org](https://www.python.org) — cocher « Add to PATH » |
 | **pywin32** | `python -c "import win32com.client"` | rien à faire — **le `.bat` l'installe seul** |
-| **Claude Code** | `claude --version` | [claude.com/claude-code](https://claude.com/claude-code) |
+| **Claude Code** | `claude --version` | [claude.com/claude-code](https://claude.com/claude-code) — ⚠️ **abonnement Claude payant** ; ce poste est gratuit, Claude Code ne l'est pas |
 
 ---
 

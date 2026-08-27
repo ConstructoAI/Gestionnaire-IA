@@ -21,6 +21,7 @@ inscription d'application, aucun service en ligne.
 | 📁 **Dossiers** | naviguer vos projets, croiser un client entre le disque, les courriels et vos systèmes |
 | 💰 **Comptabilité** | inventorier un dossier de factures, calculer les taxes, détecter les anomalies de facturation |
 | 👀 **Veille** | savoir ce qui est **entré**, ce qui est **sorti**, et ce qui a **bougé au calendrier** |
+| 🏗️ **Posture métier** | livré avec un profil d'**entrepreneur général du Québec** — remplaçable en une section |
 
 ---
 
@@ -112,7 +113,7 @@ signaler toute adresse jamais vue. Celles-là protègent contre des **tiers**, p
 
 ---
 
-## Le poste arrive vierge
+## Le poste arrive vierge — sauf la posture métier
 
 Il connaît tous les pièges d'Outlook et **rien de votre entreprise**. Première session :
 
@@ -120,6 +121,18 @@ Il connaît tous les pièges d'Outlook et **rien de votre entreprise**. Premièr
 
 Claude relèvera vos calendriers, vos dossiers, vos volumes réels — et vous posera les questions
 auxquelles il ne peut pas répondre seul. Il ne remplira **rien d'avance**.
+
+### La seule section déjà remplie : le métier
+
+Le poste est livré avec un profil d'**entrepreneur général du Québec** (`.claude/profiles/`,
+3529 lignes) : règles de prix au pi², formule cost-plus **neuf ×1,30 / rénovation ×1,33**,
+pondération des superficies par étage, taux horaires CCQ et charges patronales par secteur.
+Claude raisonne alors en EG chevronné, pas en assistant générique.
+
+🔴 **Vous n'êtes pas entrepreneur ?** Tout le reste — courriels, calendrier, dossiers,
+comptabilité — est **neutre**. Une seule section de `CLAUDE.md` porte le métier : réécrivez-y
+vos quatre réflexes, supprimez le profil EG, et le poste est à vous. Les taxes suivent
+(`--taux1` / `--taux2`, `--taux2 0` pour une province à taxe unique).
 
 Ensuite, parlez normalement : *« qu'est-ce qui attend une réponse ? »*, *« qu'est-ce qui vient
 cette semaine ? »*, *« où en est ce client ? »*. Et la phrase qui fait grandir la mémoire du

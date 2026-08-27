@@ -39,16 +39,62 @@ semblant.
 eux grossissent avec le temps sans rien coûter tant qu'on ne les ouvre pas. Chacun a **un seul
 travail** et ne rejoue jamais celui d'un autre (§7).
 
-### 🔴 À COMPLÉTER — la posture métier
+### La posture métier — entrepreneur général du Québec
 
-Ce gabarit est neutre. Si votre métier a des règles de chiffrage, de rédaction ou de
-conformité, déposez le profil dans `.claude\profiles\` et décrivez-le ici en quatre réflexes
-maximum. Un profil volumineux **ne se charge jamais en entier** : indiquer les plages de
-lignes utiles.
+Dès qu'il s'agit de chantier, d'estimation, de soumission, d'extra, d'échéancier ou de taux de
+main-d'œuvre, on raisonne en **EG chevronné**, pas en assistant générique. Le profil est livré :
+`.claude\profiles\ENTREPRENEUR_GENERAL_QC_profil.txt`.
 
-> *Exemple de ce qu'on écrit ici : gamme par défaut, formule de prix, source d'erreur
-> n° 1 dans votre métier, ce qu'on ne promet jamais.*
+⚠️ **144 Ko, 3529 lignes — jamais en entier.** Les plages utiles :
+`1–345` règles de prix · `346–600` vérification arithmétique d'un agrandissement ·
+`3333–3529` taux horaires CCQ janvier 2026 et charges patronales par secteur.
 
+Les quatre réflexes, qui tiennent sans ouvrir le fichier :
+
+1. **Gamme ÉCONOMIQUE par défaut**, quelle que soit la qualité apparente des finitions au plan
+   — c'est le poste le plus volatil du budget. Lister les indices de gamme supérieure à titre
+   indicatif, et ne recalculer qu'après confirmation explicite du client.
+2. **UN SEUL prix, cost-plus à marge fixe.** Le tarif $/pi² est un **coût de base** : il
+   n'inclut ni administration, ni contingences, ni profit, ni taxes — ne jamais dire
+   « tout inclus ».
+
+   🔴 **DEUX FORMULES, PAS UNE — les contingences varient selon le type de projet :**
+
+   | Type | Majoration | Sous-total HT | TTC |
+   |---|---|---|---|
+   | **Neuf** | Admin 3 % + Contingences **12 %** + Profit 15 % | `base × 1,30` | `base × 1,30 × 1,14975` |
+   | **Rénovation** | Admin 3 % + Contingences **15 %** + Profit 15 % | `base × 1,33` | `base × 1,33 × 1,14975` |
+
+   **Le profit est toujours 15 %** — lui ne varie jamais. Admin et contingences, si.
+   ➜ **Demander le type de projet avant de chiffrer**, ou l'annoncer explicitement. Sur
+   100 000 $ de coût de base, confondre les deux coûte **3 449,25 $**.
+
+   ⚠️ **Ne pas gonfler les contingences pour un risque non confirmé au plan.** Un risque
+   pressenti se signale « à confirmer, 0 $ d'impact » ; il ne se chiffre pas en douce.
+3. **La superficie est la source #1 d'erreur.** Superficie **BRUTE** par étage, annoncée
+   **avant** de chiffrer. Pondération RDC 100 % / dernier 85 % / intermédiaire 80 %. Deux
+   étages superposés ont des superficies proches. Le garage n'est jamais exclu.
+4. **Ne rien promettre qu'on ne tienne** — tarifs et délais en tête.
+
+⚠️ Le profil réclame un outil `calculer_prix_construction` : **rien ne garantit qu'il soit
+exposé sur votre poste.** Appliquer la formule à la main en montrant chaque ligne, et le dire —
+ne pas prétendre qu'un outil a calculé.
+
+### 🔴 VOUS N'ÊTES PAS ENTREPRENEUR ? Remplacez cette section.
+
+Tout le reste du poste — courriels, calendrier, dossiers, comptabilité — est **neutre** et ne
+suppose aucun métier. Seule cette section-ci est construction. Pour l'adapter :
+
+1. Déposez votre profil dans `.claude\profiles\`, et **supprimez celui de l'EG** si vous n'en
+   avez pas l'usage.
+2. Réécrivez les quatre réflexes ci-dessus dans **votre** métier : gamme ou hypothèse par
+   défaut, formule de prix, **source d'erreur n° 1**, ce qu'on ne promet jamais.
+3. Indiquez les **plages de lignes** utiles — un profil volumineux ne se charge jamais en
+   entier.
+4. Les taxes se règlent ailleurs (§6) : `--taux1` / `--taux2` acceptent n'importe quel régime,
+   et `--taux2 0` couvre les provinces à taxe unique.
+
+*Un poste sans posture métier fonctionne ; il répond simplement en généraliste.*
 ---
 
 ## 1. L'accès — ce qui marche et pourquoi

@@ -410,3 +410,60 @@ c'est **ce qui etait faux et comment on l'a su** qui servira dans six mois.
   Verification finale sur un clone frais de la branche, avec `core.autocrlf=true` — le defaut
   Windows, celui qui casse tout : **25 fichiers, 0 fin de ligne non conforme**, les 6 scripts
   compilent, `signature_defaut.html` absent et `signature_MODELE.html` present, comme voulu.
+
+---
+
+## Le PREMIER essai sur une machine reelle — 2026-08-29
+
+- **2026-08-29** — 🔴 UNE MACHINE WINDOWS 11 NEUVE A TROUVE CE QUE CINQ AGENTS ONT RATE.
+  Premier lancement du `.bat` sur un poste tiers, jamais utilise pour ce projet. Resultat :
+  **Claude Code s'est installe** par la voie 1 (curl), v2.1.251 dans
+  `%USERPROFILE%\.local\bin`, sans droits admin — la partie neuve du lanceur fonctionne.
+  **Puis le poste a cru Python present alors qu'il ne l'etait pas**, n'a donc jamais installe
+  le vrai Python, et `pip install pywin32` a echoue en affichant le chemin du coupable :
+  `%LOCALAPPDATA%\Microsoft\WindowsApps\python.exe`.
+  ⚠️ **Windows livre un raccourci d'execution de 0 octet a cet endroit**, et `where python` le
+  renvoie. Mon garde-fou de la veille exigeait que `--version` rende une chaine NON VIDE. Ca ne
+  suffit pas : ce raccourci est BAVARD. Mesure des deux comportements :
+  · avec un Python du Store installe derriere, il relaie et rend une VRAIE version (`Python
+  3.13.14` sur mon poste) ; · sans rien derriere, il imprime « Python est introuvable; executez
+  sans arguments a installer a partir du Microsoft Store » (poste d'essai).
+  **Les deux sorties sont non vides.** Aucune simulation ne l'avait produit : mes faux
+  executables de test etaient MUETS, jamais bavards.
+  ➜ Le seul test qui ne ment pas : **faire EXECUTER du Python**. `python -c "print(84)"` doit
+  rendre exactement 84. Un stub repond ; un interpreteur calcule. Verifie sur les deux cas :
+  le faux est rejete avec la mention explicite du raccourci Store, le vrai passe.
+
+- **2026-08-29** — ⚠️ DEUX REGRESSIONS QUE J'AI INTRODUITES EN CORRIGEANT, et rattrapees par
+  le test avant publication. Meme cause batch, deux fois.
+  (1) `for /f "delims=" %%V in ('"%~f1" -c "print(42*2)"')` : **DEUX arguments entre
+  guillemets** dans un `for /f` font retirer par `cmd` le premier et le dernier guillemet.
+  Resultat : « La syntaxe du nom de fichier, de repertoire ou de volume est incorrecte », et le
+  VRAI Python etait rejete lui aussi. ➜ La sonde passe desormais par un FICHIER
+  (`> "%TEMP%\cc_pysonde.txt"` puis `for /f "usebackq" ... ("fichier")`), qui n'a pas ce piege.
+  (2) Le meme piege dans `:essai_claude`, ou j'avais mis un tube vers `findstr` a l'interieur du
+  `for /f` : **Claude Code etait annonce ABSENT alors qu'il etait installe**. ➜ La validation de
+  la version se fait maintenant HORS du `for /f`.
+  ⚠️ Et un troisieme, trouve par mon propre test : la sonde invoquait le candidat **sans
+  `call`**. Sur un shim `.bat` — pyenv-win, pixi, conda — le controle est transfere et ne revient
+  jamais : le script mourait en silence pendant l'inventaire. C'est exactement le defaut que
+  l'audit avait releve la veille, et que j'ai reintroduit dans une ligne neuve.
+  ➜ Lecon : en batch, **toute** invocation d'un chemin resolu prend `call`, sans exception.
+
+- **2026-08-29** — ⚠️ L'installateur natif n'ajoute PAS `.local\bin` au PATH, et le dit :
+  « Native installation exists but ...\.local\bin is not in your PATH ». Le `.bat` s'en sortait
+  pour SA session en le prefixant, mais l'utilisateur qui ouvrait ensuite un terminal et tapait
+  `claude` ne trouvait rien.
+  ➜ Ajout au PATH **utilisateur**, par le registre via PowerShell — **jamais par `setx`**, qui
+  tronque a 1024 caracteres et detruit silencieusement un PATH long.
+
+- **2026-08-29** — ⚠️ QUATRIEME occurrence du piege d'echappement de la section 8 dans mes
+  outils, plus une cinquieme d'un genre voisin. Un heredoc bash a de nouveau mange les
+  antislash d'un `replace("\r\n","\n")`, produisant un fichier Python syntaxiquement invalide.
+  Et un script de correction a echoue parce qu'il lisait le `.bat` en CRLF tout en cherchant
+  des motifs en LF — **zero occurrence trouvee**.
+  ⚠️ Les deux ont echoue BRUYAMMENT, donc sans dommage : rien n'a ete ecrit. C'est la
+  difference avec le faux zero du matin, ou le meme accident avait produit un resultat
+  silencieux et faux.
+  ➜ Regle ajoutee a mes propres passes : lire un fichier CRLF en normalisant d'abord, et faire
+  transiter tout texte a antislash par un FICHIER, jamais par un heredoc.

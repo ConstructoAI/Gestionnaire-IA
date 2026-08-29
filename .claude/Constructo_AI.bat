@@ -102,6 +102,7 @@ if not defined CLAUDE_EXE (
 call :resoudre_python
 if not defined PY (
   echo     Python  . . . . . . . ABSENT
+  where python >nul 2>&1 && echo                             ^(raccourci Microsoft Store ignore : ce n'est pas un interpreteur^)
   echo     pywin32 . . . . . . . ABSENT   -- Python requis d'abord
   set "MANQUE_PYTHON=1"
   set "MANQUE_PYWIN32=1"
@@ -325,6 +326,7 @@ exit /b 1
 :claude_ok
 echo   Claude Code installe : %VER_CLAUDE%
 echo   Emplacement : %CLAUDE_EXE%
+call :ajouter_au_path "%CLAUDE_BIN%"
 echo.
 
 rem --- Python ----------------------------------------------------------------
@@ -538,6 +540,34 @@ if not "%CODE_SESSION%"=="0" (
 endlocal & exit /b %CODE_SESSION%
 
 rem ===========================================================================
+rem  PATH UTILISATEUR
+rem
+rem  L'installateur natif le signale lui-meme : "Native installation exists but
+rem  ...\.local\bin is not in your PATH". Ce .bat s'en sort en le prefixant
+rem  pour SA session, mais l'utilisateur qui ouvre ensuite un terminal et tape
+rem  `claude` ne trouve rien.
+rem
+rem  On l'ajoute PAR LE REGISTRE, jamais par `setx` : setx tronque a 1024
+rem  caracteres et detruit silencieusement un PATH long. Ajoute le 2026-08-29.
+rem ===========================================================================
+
+:ajouter_au_path
+if not exist "%~f1" goto :eof
+rem  Pas de `echo %PATH% ^| findstr` ici : le PATH contient des parentheses
+rem  (Program Files (x86)) qui cassent la ligne. PowerShell verifie lui-meme si
+rem  le chemin y est deja, et ne fait rien si c'est le cas.
+"%PS_EXE%" -NoProfile -Command "$p = '%~f1'; $u = [Environment]::GetEnvironmentVariable('PATH','User'); if ($null -eq $u) { $u = '' }; if ($u -notlike ('*' + $p + '*')) { [Environment]::SetEnvironmentVariable('PATH', ($u.TrimEnd(';') + ';' + $p).TrimStart(';'), 'User') }" >nul 2>&1
+if errorlevel 1 (
+  echo   Ajout au PATH impossible - sans effet sur cette session, qui fonctionne.
+  echo   Pour taper `claude` depuis n'importe quel terminal, ajoutez a la main :
+  echo       %~f1
+) else (
+  echo   Ajoute au PATH de votre compte : %~f1
+  echo   ^(actif dans les NOUVEAUX terminaux ; celui-ci fonctionne deja^)
+)
+goto :eof
+
+rem ===========================================================================
 rem  SOUS-ROUTINES DE RESOLUTION
 rem
 rem  POURQUOI un chemin absolu plutot que la commande nue.
@@ -572,8 +602,18 @@ goto :eof
 
 :essai_claude
 if /I "%~dp1"=="%CDS%" goto :eof
-for /f "delims=" %%V in ('"%~f1" --version 2^>nul') do if not defined VER_CLAUDE set "VER_CLAUDE=%%V"
-if not defined VER_CLAUDE goto :eof
+rem  La sortie doit RESSEMBLER a une version (chiffre.chiffre), pas seulement
+rem  etre non vide : un stub bavard repondrait n'importe quoi.
+rem  La validation se fait HORS du for /f. Mesure du 2026-08-29 : un tube vers
+rem  findstr a l'interieur du for /f produit deux arguments entre guillemets,
+rem  cmd retire alors le premier et le dernier, et la detection echoue - Claude
+rem  Code etait annonce ABSENT alors qu'il etait installe.
+set "VTEMP="
+for /f "delims=" %%V in ('"%~f1" --version 2^>nul') do if not defined VTEMP set "VTEMP=%%V"
+if not defined VTEMP goto :eof
+echo %VTEMP%| "%SystemRoot%\System32\findstr.exe" /R "[0-9]\.[0-9]" >nul
+if errorlevel 1 goto :eof
+set "VER_CLAUDE=%VTEMP%"
 set "CLAUDE_EXE=%~f1"
 goto :eof
 
@@ -599,6 +639,29 @@ goto :eof
 
 :essai_python
 if /I "%~dp1"=="%CDS%" goto :eof
+rem  ON FAIT EXECUTER DU PYTHON, on ne se contente pas d'une reponse.
+rem  Corrige le 2026-08-29 apres essai sur un poste Windows 11 neuf : le stub du
+rem  Microsoft Store (%LOCALAPPDATA%\Microsoft\WindowsApps\python.exe, 0 octet)
+rem  est BAVARD. Il rend une vraie version quand un Python du Store est installe
+rem  derriere, et "Python est introuvable..." quand il n'y en a pas. Les deux
+rem  sorties etant non vides, exiger une reponse laissait passer un faux
+rem  interpreteur : le poste n'installait jamais le vrai Python, et
+rem  `pip install pywin32` echouait ensuite sans que la cause soit visible.
+rem  On passe par un FICHIER SONDE, pas par `for /f ('commande')`.
+rem  Mesure du 2026-08-29 : `for /f ... in ('"chemin" -c "code"')` casse, parce
+rem  que cmd retire le premier et le dernier guillemet des qu'il y a DEUX
+rem  arguments entre guillemets - "La syntaxe du nom de fichier est
+rem  incorrecte". Le vrai Python etait alors rejete lui aussi.
+set "PYOK="
+set "PYSONDE=%TEMP%\cc_pysonde.txt"
+del "%PYSONDE%" >nul 2>&1
+rem  `call` obligatoire : si le candidat est un .bat ou un .cmd - shim
+rem  pyenv-win, pixi, conda - une invocation nue transfere le controle et
+rem  ne revient JAMAIS. Le script mourait en silence pendant l'inventaire.
+call "%~f1" -c "print(84)" > "%PYSONDE%" 2>nul
+if exist "%PYSONDE%" for /f "usebackq delims=" %%V in ("%PYSONDE%") do if "%%V"=="84" set "PYOK=1"
+del "%PYSONDE%" >nul 2>&1
+if not defined PYOK goto :eof
 for /f "delims=" %%V in ('"%~f1" --version 2^>^&1') do if not defined VER_PY set "VER_PY=%%V"
 if not defined VER_PY goto :eof
 set "PY=%~f1"

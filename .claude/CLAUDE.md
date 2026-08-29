@@ -159,7 +159,7 @@ le fichier. Le hub affirmait « c'est la seule voie qui tienne » — c'était f
 | Prérequis | |
 |---|---|
 | **Outlook classique** | celui du Microsoft Store **n'expose pas MAPI/COM** — le kit ne sait pas le piloter |
-| **Python 3.x** | `pywin32` est installé automatiquement par `Constructo_AI.bat` |
+| **Python 3.x** | Python **et** `pywin32` sont installés automatiquement par `Constructo_AI.bat` — ⚠️ mais voir le piège du raccourci Microsoft Store, ci-dessous |
 | **Claude Code** | la commande `claude` accessible dans le PATH — **pas `claude.cmd`** (voir ci-dessous) |
 | **Windows 10 1809+** | ou Windows Server 2019+ ; 4 Go de RAM ; compte Pro, Max, Team, Enterprise ou Console (le plan gratuit **n'inclut pas** Claude Code) |
 | **Git pour Windows** | *optionnel mais recommandé ici* : sans lui, Claude Code n'a **pas** l'outil Bash et bascule sur PowerShell — or les commandes des §2 et §3 sont écrites en shell POSIX |
@@ -175,6 +175,32 @@ démarrer sur un poste où Claude Code était pourtant installé et fonctionnel.
 ➜ **Toujours tester `claude`, jamais `claude.cmd`.** L'installateur natif place le binaire dans
 `%USERPROFILE%\.local\bin` (données dans `%USERPROFILE%\.local\share\claude`), **sans droits
 administrateur**, et se met à jour tout seul en arrière-plan.
+⚠️ Il **n'ajoute pas** ce dossier au PATH : `Constructo_AI.bat` le fait, pour sa session et
+pour le compte utilisateur.
+
+### 🔴 `where python` trouve un Python qui n'en est pas un
+
+**Mesuré le 2026-08-29 sur un poste Windows 11 neuf.** Windows livre un raccourci d'exécution à
+`%LOCALAPPDATA%\Microsoft\WindowsApps\python.exe` — **0 octet**, ce n'est pas un interpréteur.
+`where python` le renvoie, et il est **bavard** :
+
+| Situation | Ce que rend `python --version` |
+|---|---|
+| Un Python du Store est installé derrière | une **vraie** version, `Python 3.13.14` |
+| Aucun Python derrière | `Python est introuvable; exécutez sans arguments à installer…` |
+
+🔴 **Les deux sorties sont non vides.** Exiger une réponse ne suffit donc pas : le poste croyait
+Python installé, ne l'installait jamais, et `pip install pywin32` échouait ensuite sans que la
+cause soit visible.
+
+➜ **Le seul test qui ne ment pas : faire EXÉCUTER du Python.** Un stub répond ; un interpréteur
+calcule.
+```bash
+python -c "print(84)"     # doit rendre exactement 84
+```
+⚠️ En batch, écrire cette sonde avec `call` et **via un fichier**, jamais dans un
+`for /f ('…')` : deux arguments entre guillemets font retirer par `cmd` le premier et le
+dernier, et la commande casse (« La syntaxe du nom de fichier… est incorrecte »).
 Source : [docs officielles](https://code.claude.com/docs/en/setup), consultées le 2026-08-29.
 
 ### Vérifier au démarrage

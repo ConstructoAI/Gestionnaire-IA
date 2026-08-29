@@ -396,3 +396,17 @@ c'est **ce qui etait faux et comment on l'a su** qui servira dans six mois.
   Balayage de fuite, chaque motif valide par un temoin positif : aucun courriel reel, aucun
   telephone, aucun numero TPS/TVQ, aucune cle, aucun chemin nominatif. Les deux seules
   occurrences de `C:\Users\<nom>` sont l'exemple fictif « Marie ».
+
+- **2026-08-29** — PUBLICATION sur GitHub : `ConstructoAI/Gestionnaire-IA`, depot **PUBLIC**.
+  Le dossier local n'etait PAS un depot git ; le distant portait deja **5 commits**. Un
+  `git init` suivi d'un push aurait ecrase cet historique. ➜ Clone du distant, application de
+  l'etat corrige par-dessus, commit sur une branche `audit-2026-08-29`, PR #1. Historique
+  preserve, correction revocable par `git revert`.
+  ⚠️ **`signature_defaut.html` etait DEJA suivi par git** : ajouter une regle au `.gitignore`
+  ne detrack pas un fichier deja versionne. Il a fallu `git rm --cached`. Sans ce geste, le
+  jour ou quelqu'un remplit sa signature avec son vrai nom et son vrai telephone, un
+  `git add .` l'aurait publiee — la protection du matin n'aurait servi a rien.
+  ➜ Regle a retenir : une regle `.gitignore` ne vaut que pour les fichiers PAS ENCORE suivis.
+  Verification finale sur un clone frais de la branche, avec `core.autocrlf=true` — le defaut
+  Windows, celui qui casse tout : **25 fichiers, 0 fin de ligne non conforme**, les 6 scripts
+  compilent, `signature_defaut.html` absent et `signature_MODELE.html` present, comme voulu.

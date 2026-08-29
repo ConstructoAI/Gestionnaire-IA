@@ -17,7 +17,7 @@ if /I "%NOMDOSSIER%"==".claude" cd ..
 set "CFG=%CD%\.claude"
 if not exist "%CFG%\CLAUDE.md" (
   echo.
-  echo   INTROUVABLE : %CFG%\CLAUDE.md
+  echo   INTROUVABLE : !CFG!\CLAUDE.md
   echo.
   echo   Ce fichier doit se trouver dans le dossier .claude, ou juste a cote.
   echo   Copiez le dossier .claude dans votre dossier de travail, puis relancez.
@@ -34,6 +34,14 @@ rem  avec `subst X:` puis `cd X:\`, un faux claude.exe du dossier courant etait
 rem  RETENU. Cas reel : lecteur reseau mappe, SharePoint monte en racine.
 set "CDS=%CD%"
 if not "%CDS:~-1%"=="\" set "CDS=%CDS%\"
+
+rem  NE JAMAIS ecrire %VAR% NON QUOTEE a l'interieur d'un bloc ( ... ).
+rem  cmd developpe a l'ANALYSE, avant d'executer : si la valeur contient une
+rem  parenthese fermante - et Windows nomme le 2e telechargement d'un ZIP
+rem  "... (1)" - le bloc se termine la et tout le fichier devient faux.
+rem  Mesure du 2026-08-29 : lance depuis "Gestionnaire-IA-main (1)", ce
+rem  fichier rendait "\.claude\CLAUDE.md etait inattendu." et sortait en 255,
+rem  fenetre fermee sans rien afficher. Utiliser !VAR!, developpee a l'execution.
 
 rem ---------------------------------------------------------------------------
 rem  RIEN N'EST CODE EN DUR : CHAQUE POSTE EST DIFFERENT
@@ -333,8 +341,8 @@ pause
 exit /b 1
 
 :claude_ok
-echo   Claude Code installe : %VER_CLAUDE%
-echo   Emplacement : %CLAUDE_EXE%
+echo   Claude Code installe : !VER_CLAUDE!
+echo   Emplacement : !CLAUDE_EXE!
 call :ajouter_au_path "%CLAUDE_BIN%"
 echo.
 
@@ -360,7 +368,7 @@ if not defined PY (
   set "MODE_DEGRADE=1"
   goto install_git
 )
-echo   Python installe : %PY%
+echo   Python installe : !PY!
 echo.
 
 rem --- pywin32 ---------------------------------------------------------------
@@ -409,7 +417,7 @@ if not defined GIT_EXE (
   echo   Claude Code utilisera PowerShell au lieu de Bash.
   echo   Pour l'ajouter plus tard : https://git-scm.com/downloads/win
 ) else (
-  echo   Git pour Windows installe : %GIT_EXE%
+  echo   Git pour Windows installe : !GIT_EXE!
 )
 echo.
 
@@ -421,9 +429,9 @@ echo   [3/6] Ouverture d'Outlook...
 echo.
 
 if defined MOTEUR_MANQUANT (
-  echo   MOTEUR INCOMPLET :%MOTEUR_MANQUANT%
+  echo   MOTEUR INCOMPLET :!MOTEUR_MANQUANT!
   echo.
-  echo   Des scripts du dossier %CFG%\scripts\ manquent. Les courriels et le
+  echo   Des scripts du dossier !CFG!\scripts\ manquent. Les courriels et le
   echo   calendrier seront inaccessibles ; les dossiers restent lisibles.
   echo.
   pause
@@ -450,7 +458,7 @@ if not defined OUTLOOK_EXE (
 )
 
 start "" "%OUTLOOK_EXE%"
-echo   Lance : %OUTLOOK_EXE%
+echo   Lance : !OUTLOOK_EXE!
 
 rem ===========================================================================
 rem  [4/6] Mise a jour de Claude Code pendant qu'Outlook demarre.
@@ -541,7 +549,7 @@ rem  session non authentifiee, abonnement absent - ferme la fenetre sur son
 rem  propre message d'erreur : rien a lire, rien a rapporter.
 if not "%CODE_SESSION%"=="0" (
   echo.
-  echo   La session s'est terminee avec le code %CODE_SESSION%.
+  echo   La session s'est terminee avec le code !CODE_SESSION!.
   echo   Si un message d'erreur s'affiche ci-dessus, c'est lui qui compte.
   echo.
   pause
@@ -567,12 +575,13 @@ rem  Pas de `echo %PATH% ^| findstr` ici : le PATH contient des parentheses
 rem  (Program Files (x86)) qui cassent la ligne. PowerShell verifie lui-meme si
 rem  le chemin y est deja, et ne fait rien si c'est le cas.
 "%PS_EXE%" -NoProfile -Command "$p = '%~f1'; $u = [Environment]::GetEnvironmentVariable('PATH','User'); if ($null -eq $u) { $u = '' }; if ($u -notlike ('*' + $p + '*')) { [Environment]::SetEnvironmentVariable('PATH', ($u.TrimEnd(';') + ';' + $p).TrimStart(';'), 'User') }" >nul 2>&1
+set "CIBLE_PATH=%~f1"
 if errorlevel 1 (
   echo   Ajout au PATH impossible - sans effet sur cette session, qui fonctionne.
   echo   Pour taper `claude` depuis n'importe quel terminal, ajoutez a la main :
-  echo       %~f1
+  echo       !CIBLE_PATH!
 ) else (
-  echo   Ajoute au PATH de votre compte : %~f1
+  echo   Ajoute au PATH de votre compte : !CIBLE_PATH!
   echo   ^(actif dans les NOUVEAUX terminaux ; celui-ci fonctionne deja^)
 )
 goto :eof

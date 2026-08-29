@@ -533,3 +533,23 @@ c'est **ce qui etait faux et comment on l'a su** qui servira dans six mois.
   `depannage.md` n'est pas traduit. Mieux vaut le dire que laisser un anglophone le decouvrir
   devant l'invite `Installer maintenant ? [O/N]`.
   Carte du hub mise a jour : elle porte desormais les quatre fichiers et la regle de preseance.
+
+- **2026-08-29** — 🔴 UN CHEMIN AVEC UNE PARENTHESE TUAIT LE LANCEUR. Trouve par l'utilisateur.
+  Symptome rapporte : "le .bat s'est ouvert et ferme automatiquement", sans rien afficher.
+  Le dossier etait `Gestionnaire-IA-main (1)` — le nom que Windows donne au SECOND
+  telechargement d'un meme ZIP. Cas donc tres courant.
+  Reproduit a l'identique : lance depuis ce dossier, le `.bat` rend
+  `\.claude\CLAUDE.md etait inattendu.` et sort en **255**.
+  ⚠️ Cause : `cmd` developpe `%VAR%` a l'ANALYSE, avant d'executer. La parenthese fermante de
+  `(1)` terminait le bloc `if not exist (` des la ligne 20 — sur un `echo` qui n'aurait JAMAIS
+  du s'executer, la condition etant fausse. Tout le fichier devenait syntaxiquement faux.
+  ➜ Dix expansions converties en `!VAR!`, developpee a l'execution. Deux exceptions gardees :
+  `endlocal & exit /b %CODE%` (que `!...!` viderait) et tout ce qui est entre guillemets.
+  `%~f1` dans un bloc avait le meme defaut : range dans une variable d'abord.
+  Verifie APRES correction, depuis le meme dossier a parentheses : inventaire complet, **sortie
+  0**. Et les deux hooks PowerShell testes depuis ce chemin : sortie 0, JSON correct — seul
+  `cmd` avait ce defaut.
+  ⚠️ Ce que ca dit de la campagne d'hier : cinq agents, deux passes, et personne n'a essaye un
+  chemin contenant une parenthese. Agent 1 avait pourtant teste l'espace, l'apostrophe, l'accent
+  et meme la racine d'un lecteur. La parenthese manquait a la liste — et c'est le seul de ces
+  cas que Windows fabrique TOUT SEUL, sans que l'utilisateur ait rien demande.

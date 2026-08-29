@@ -662,6 +662,30 @@ un fichier de données** que le script lit sans jamais les interpréter. Et **co
 python -c "d=open(r'.claude\agents\courriels.md','rb').read(); print('CRLF' if b'\r\n' in d else 'LF')"
 ```
 
+### 🔴 Batch : jamais de `%VAR%` non quotée dans un bloc `( ... )`
+
+`cmd` développe `%VAR%` à l'**analyse**, avant d'exécuter. Si la valeur contient une
+**parenthèse fermante**, le bloc se termine là et tout le fichier devient syntaxiquement faux —
+y compris les lignes qui n'auraient jamais dû s'exécuter.
+
+**Mesuré le 2026-08-29.** Windows nomme le second téléchargement d'un même ZIP
+`Gestionnaire-IA-main (1)`. Lancé depuis là, `Constructo_AI.bat` rendait :
+
+```
+\.claude\CLAUDE.md était inattendu.
+```
+
+et sortait en **255** — *fenêtre ouverte et refermée sans rien afficher*. La cause était une
+seule ligne, `echo INTROUVABLE : %CFG%\CLAUDE.md`, à l'intérieur d'un `if not exist (`. Elle
+n'aurait jamais dû s'exécuter : c'est l'**analyse** du bloc qui échouait.
+
+➜ **Utiliser `!VAR!`**, développée à l'exécution, donc insensible aux parenthèses. Le fichier
+porte déjà `setlocal enabledelayedexpansion`. Deux exceptions légitimes : `endlocal & exit /b
+%CODE%` (`!…!` serait vidé par `endlocal`) et tout ce qui est **entre guillemets**.
+⚠️ `%~f1` dans un bloc a le même défaut : le ranger d'abord dans une variable.
+*(PowerShell, lui, n'a pas ce problème — les deux hooks ont été vérifiés depuis un chemin à
+parenthèses : sortie 0, JSON correct.)*
+
 ### ⚠️ Sur Windows : `bash` et `pwsh` ne sont pas fiables pour un hook
 
 Sur un poste avec WSL, `bash` du PATH résout vers **WSL**, pas Git Bash. Et `pwsh`

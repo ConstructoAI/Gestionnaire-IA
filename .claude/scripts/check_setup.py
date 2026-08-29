@@ -7,6 +7,18 @@ Ne modifie rien. Affiche un diagnostic et, en cas de problème, la marche à sui
 """
 import sys, os, platform, subprocess
 
+# Console Windows en cp1252 : un nom de compte hors latin-1 tuerait le
+# diagnostic en plein milieu. Ajoute le 2026-08-29 — c'etait le seul script du
+# poste a en manquer, et c'est celui qui sert de portier (section 1).
+# Le try/except est indispensable : ce script pretend diagnostiquer Python < 3.8,
+# ou .reconfigure peut manquer — sans lui il planterait avant d'afficher son
+# propre message d'erreur.
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="backslashreplace")
+except Exception:
+    pass
+
 OK, KO, WARN = "[ OK ]", "[ECHEC]", "[ ! ]"
 problems = []
 

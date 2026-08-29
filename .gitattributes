@@ -22,8 +22,28 @@
 .claude/**/*.html       text eol=lf
 .claude/*.txt           text eol=lf
 
-# Le .bat, lui, DOIT rester en CRLF : cmd.exe l'exige.
+# Le .bat, lui, DOIT rester en CRLF : cmd.exe l'exige. Le .cmd aussi.
 *.bat                   text eol=crlf
+*.cmd                   text eol=crlf
+
+# Les binaires ne se normalisent JAMAIS. Ajoute le 2026-08-29 : la regle
+# `.claude/** text eol=lf` ci-dessus ecrase le `* -text` du debut, et
+# normalisait donc tout binaire depose dans .claude/ — un PNG de signature ou
+# un .xlsx en ressortait corrompu. Mesure : `git check-attr text eol` rendait
+# `text: set, eol: lf` sur .claude/profiles/logo.png.
+*.png                   binary
+*.jpg                   binary
+*.jpeg                  binary
+*.gif                   binary
+*.ico                   binary
+*.pdf                   binary
+*.xlsx                  binary
+*.xls                   binary
+*.docx                  binary
+*.zip                   binary
+*.ost                   binary
+*.pst                   binary
+*.pyc                   binary
 
 # Racine
 *.md                    text eol=lf

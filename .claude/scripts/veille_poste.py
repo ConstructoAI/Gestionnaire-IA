@@ -44,7 +44,8 @@ import os
 import sys
 import time
 
-sys.stdout.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
+sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace", line_buffering=True)
+sys.stderr.reconfigure(encoding="utf-8", errors="backslashreplace")
 
 ICI = os.path.dirname(os.path.abspath(__file__))
 RACINE = os.path.dirname(ICI)
@@ -107,7 +108,12 @@ def releve(ns, limite=60):
         for dossier, nom in [(cal, cal.Name)] + [(s, s.Name) for s in cal.Folders]:
             if getattr(dossier, "DefaultItemType", None) != 1:
                 continue
-            if nom in ("United States holidays", "Anniversaires"):
+            # Insensible a la casse ET a la langue : sur un profil fr-CA ces
+            # dossiers s'appellent « Jours fériés au Canada » ou « Birthdays ».
+            # Corrige le 2026-08-29 — la comparaison exacte en anglais ne
+            # matchait jamais, et la veille remontait tous les feries.
+            if any(k in (nom or "").lower() for k in
+                   ("holiday", "férié", "ferie", "anniversaire", "birthday")):
                 continue                      # feries et anniversaires : du bruit ici
             for x in dossier.Items:           # PAS de Restrict : on veut les elements STOCKES
                 try:
@@ -188,6 +194,13 @@ def main():
     ap.add_argument("--intervalle", type=int, default=60, help="secondes entre deux tours (defaut 60)")
     ap.add_argument("--remise-a-zero", action="store_true", help="oublie l'etat et reprend au present")
     a = ap.parse_args()
+
+    # Valide AVANT tout effet de bord : --remise-a-zero effacait le fichier
+    # d'etat puis plantait sur `// a.intervalle`. Ajoute le 2026-08-29.
+    if a.intervalle < 1:
+        sys.exit("ARRET : --intervalle doit valoir au moins 1 seconde.")
+    if a.minutes < 1:
+        sys.exit("ARRET : --minutes doit valoir au moins 1.")
 
     w = _win32()
     try:

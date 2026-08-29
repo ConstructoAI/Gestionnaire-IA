@@ -46,15 +46,32 @@ import sys
 from collections import defaultdict
 
 sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")
+sys.stderr.reconfigure(encoding="utf-8", errors="backslashreplace")
 
 RE_HORO = re.compile(r"(\d{8,12})")
-RE_MONTANT = re.compile(r"([\d  ]+[.,]\d{2})\s*\$")
+# Tolerer TOUTES les espaces de separation de milliers, pas seulement l'espace
+# ordinaire et l'insecable. Corrige le 2026-08-29 : la fine insecable U+2009 et
+# la virgule anglo DECAPITAIENT le montant en silence - "1 234,56" devenait
+# 234,56 et "4,160.00" devenait 160.00. Regle du motif trop strict, section 4.
+ESPACES = "\u00a0\u202f\u2009\u2007\u2008\u2002\u2003 "
+RE_MONTANT = re.compile(r"(\d[\d" + ESPACES + r",.]*\d[.,]\d{2})\s*\$")
 RE_DEST = re.compile(r"(?i)^\s*factur[ée]?\s*[àa]\s*:?\s*(.*)$")
 
 
 def montant(s):
+    """Lit un montant quel que soit le separateur de milliers.
+
+    Le DERNIER separateur rencontre est le decimal : "4,160.00" -> 4160.00 et
+    "4 160,00" -> 4160.00. Tout ce qui precede n'est que du bruit de milliers.
+    """
+    t = s
+    for c in ESPACES:
+        t = t.replace(c, "")
+    i = max(t.rfind(","), t.rfind("."))
+    if i < 0:
+        return None
     try:
-        return round(float(s.replace(" ", "").replace(" ", "").replace(",", ".")), 2)
+        return round(float(re.sub(r"[.,]", "", t[:i]) + "." + t[i + 1:]), 2)
     except ValueError:
         return None
 
@@ -82,15 +99,29 @@ def destinataire(lignes):
 
 
 def resoudre(montants, t1, t2):
-    """Cherche le HT dont les trois derives sont TOUS presents. Sinon : rien."""
+    """Cherche le HT dont les trois derives sont TOUS presents.
+
+    Si PLUSIEURS HT bouclent, on n'en retient AUCUN : l'ambiguite s'isole.
+
+    Corrige le 2026-08-29. La version precedente parcourait `sorted(S, reverse=True)`
+    et rendait le PREMIER succes : elle retenait donc le PLUS GROS quadruplet.
+    Mesure : un document portant la vraie facture du jour (1149,75) ET une facture
+    anterieure rappelee (2299,50) rendait 2299,50 marque `fiable=true` - 100 % de
+    trop, en silence. N'importe quel document citant un autre jeu de montants -
+    facture precedente, extra, soumission rappelee, note de credit - declenchait
+    le cas.
+    """
     S = set(montants)
+    sols = []
     for ht in sorted(S, reverse=True):
         if ht <= 0:
             continue
         a, b, tot = round(ht * t1, 2), round(ht * t2, 2), round(ht * (1 + t1 + t2), 2)
         attendus = [(a, .02), (tot, .03)] + ([(b, .02)] if t2 else [])
         if all(any(abs(x - v) <= tol for x in S) for v, tol in attendus):
-            return ht, a, b, tot
+            sols.append((ht, a, b, tot))
+    if len(sols) == 1:
+        return sols[0]
     return None, None, None, None
 
 
@@ -144,9 +175,19 @@ def main():
                 continue
             if a.annee and not horo.startswith(a.annee):
                 continue
-            mts = [x for x in (montant(v) for v in RE_MONTANT.findall(blob)) if x]
+            mts = [x for x in (montant(v) for v in RE_MONTANT.findall(blob)) if x is not None]
             ht, t1, t2, tot = resoudre(mts, a.taux1, a.taux2)
             cle = (horo, cli or "(client non lu dans le document)")
+            # Deux fichiers de MEME horodatage et MEME client : la version
+            # precedente ecrasait la premiere sans un mot, et la facture perdue
+            # n'apparaissait dans AUCUN compteur. Mesure du 2026-08-29 : deux
+            # factures de 2299,50 ne comptaient que pour une. On isole plutot que
+            # d'additionner - c'est a l'humain de trancher.
+            if cle in fac and fac[cle]["fichier"] != f:
+                hors.append((f, os.path.relpath(racine, a.dossier),
+                             "DOUBLON horodatage+client de %s - NON ADDITIONNE, a trancher"
+                             % fac[cle]["fichier"]))
+                continue
             fac[cle] = dict(horodatage=horo, client=cle[1], destinataire_brut=destinataire(lignes),
                             ht=ht, taxe1=t1, taxe2=t2, total=tot,
                             fiable=tot is not None, fichier=f,

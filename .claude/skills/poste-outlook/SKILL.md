@@ -104,7 +104,7 @@ qui tient dans un écran de téléphone est lu.
 
 ## 2. Calendrier
 
-Dossier **distinct** de la boîte. Recette, six pièges et commandes d'écriture : `CLAUDE.md` §3.
+Dossier **distinct** de la boîte. Recette, **huit** pièges et commandes d'écriture : `CLAUDE.md` §3.
 Les trois qui coûtent, tous silencieux :
 
 1. `IncludeRecurrences = $true` **puis** `Sort("[Start]")` — sinon une série ne rend qu'une
@@ -116,6 +116,10 @@ Les trois qui coûtent, tous silencieux :
 **Écriture** — `outlook_calendar.py` : `create` · `update` · `delete`, verrouillés par
 **`--yes-write`**. Le script **refuse** toute date non ISO. ⚠️ `update` et `delete` portent sur
 l'élément **stocké** : sur une série, c'est toute la série.
+🔴 **`update` avertit AVANT ; `delete` ne prévient qu'APRÈS coup** — quand la série entière est
+déjà partie. ➜ Vérifier `IsRecurring` avec `show --id` **avant** tout `delete`.
+🔴 **`--jours 0` rend toujours zéro rendez-vous** — pour la journée en cours, `--jours 1`.
+Et `--limite` tronque à **100** sans le dire.
 ⚠️ Tout jalon déplacé se consigne dans `ETAT_calendrier.md` §1 — le calendrier, lui, efface la
 date d'origine en la remplaçant.
 
@@ -145,6 +149,15 @@ lecture — **mais seulement si OneDrive tourne**. Processus arrêté, le **list
 ## 4. Comptabilité
 
 Détail et pièges : `CLAUDE.md` §6. Historique et anomalies : `.claude\ETAT_comptabilite.md`.
+
+```bash
+python .claude/scripts/factures.py --dossier "<CHEMIN>" [--annee 2026] \
+       [--taux1 0.05] [--taux2 0.09975] [--conventions] [--json]
+```
+
+Il inventorie un dossier de factures HTML/PDF et **isole tout ce qui ne boucle pas** au lieu de
+le deviner — y compris quand **deux** montants bouclent dans le même document (facture
+antérieure rappelée, extra), cas où il ne choisit pas.
 
 🔴 **Avant tout chiffre : de quelle entité parle-t-on ?** Une entreprise qui a changé de
 structure porte deux jeux de numéros de taxe, et une facture peut afficher l'une en portant les

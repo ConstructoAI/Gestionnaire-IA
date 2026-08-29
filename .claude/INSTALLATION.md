@@ -14,9 +14,15 @@ d'application.
 | Prérequis | Comment vérifier | Si ça manque |
 |---|---|---|
 | **Outlook classique** | il s'ouvre depuis `Program Files\Microsoft Office\` | ⛔ Celui du **Microsoft Store n'expose pas MAPI/COM** — rien ne fonctionnera. Installer Outlook classique. |
-| **Python 3.x** | `python --version` | [python.org](https://www.python.org) — cocher « Add to PATH » |
+| **Python 3.x** | `python --version` | rien à faire — **le `.bat` l'installe seul** (winget, portée utilisateur). Repli manuel : [python.org](https://www.python.org), cocher « Add to PATH » |
 | **pywin32** | `python -c "import win32com.client"` | rien à faire — **le `.bat` l'installe seul** |
-| **Claude Code** | `claude --version` | [claude.com/claude-code](https://claude.com/claude-code) — ⚠️ **abonnement Claude payant** ; ce poste est gratuit, Claude Code ne l'est pas |
+| **Claude Code** | `claude --version` | rien à faire — **le `.bat` l'installe seul** (installateur officiel, sans droits admin). ⚠️ mais il vous faut un **abonnement Claude payant** — Pro, Max, Team, Enterprise ou Console ; *ce poste est gratuit, Claude Code ne l'est pas* |
+| **Git pour Windows** | `git --version` | rien à faire — **le `.bat` l'installe seul**. *Optionnel mais recommandé* : sans lui, Claude Code n'a pas l'outil Bash et bascule sur PowerShell, alors que les commandes du poste sont écrites en shell POSIX |
+
+⚠️ **Ne cherchez pas `claude.cmd`** : l'installateur natif produit `claude.exe` dans
+`%USERPROFILE%\.local\bin`. Le nom `claude.cmd` n'existe qu'avec une installation **npm**.
+*(Mesuré le 2026-08-29 : le `.bat` testait `claude.cmd` et refusait de démarrer sur un poste où
+Claude Code était installé et fonctionnel.)*
 
 ---
 
@@ -34,10 +40,31 @@ Mon dossier de travail\
 
 **2. Double-cliquer `.claude\Constructo_AI.bat`.**
 
-C'est tout. Au premier lancement il installe `pywin32` lui-même — vous n'avez aucune
-commande à taper.
+C'est tout. **Vous n'avez aucune commande à taper.** Au premier lancement, il dresse l'inventaire
+de ce qui est présent, vous montre la liste de ce qui manque, et **demande une seule fois** :
 
-Il se replace tout seul au bon niveau, ouvre Outlook, **attend que la boîte réponde vraiment**,
+```
+  Il manque :
+    - Claude Code       installateur officiel, sans droits admin
+    - pywin32           le pont vers Outlook
+    - Git pour Windows  optionnel : donne l'outil Bash a Claude
+
+  Tout s'installe pour VOTRE compte seulement. Aucune elevation UAC,
+  rien n'est modifie pour les autres utilisateurs du poste.
+
+  Installer maintenant ? [O/N]
+```
+
+Répondez `O` et il enchaîne tout seul. Répondez autre chose et il démarre quand même, en mode
+dégradé, en disant ce qui restera inaccessible. **Si rien ne manque, la question n'est pas
+posée.**
+
+Pour Claude Code il tente quatre voies dans l'ordre, et s'arrête à la première qui réussit :
+l'installateur officiel par `curl`, puis par PowerShell, puis `winget`, puis Node.js + `npm`.
+*Note : une installation `winget` ne se met pas à jour toute seule, contrairement à
+l'installation native.*
+
+Ensuite il se replace au bon niveau, ouvre Outlook, **attend que la boîte réponde vraiment**,
 et démarre la session. Si quelque chose manque, il le dit au lieu de faire semblant.
 
 ---
@@ -57,9 +84,14 @@ Puis mettez votre signature en place :
 
 1. Ouvrir un **courriel réellement envoyé** — pas le dossier `%APPDATA%\Microsoft\Signatures`,
    qui contient souvent des signatures périmées.
-2. Coller le bloc dans `.claude\profiles\signature_defaut.html` — il est déjà en place et
-   c'est celui qu'appelle `--signature` sans argument. (`signature_MODELE.html` reste comme
-   exemple commenté.)
+2. **Copier** `.claude\profiles\signature_MODELE.html` en
+   `.claude\profiles\signature_defaut.html`, puis y coller le bloc. C'est ce nom-là
+   qu'appelle `--signature` sans argument.
+   ⚠️ **Le dépôt ne livre volontairement aucune signature remplie** — elle porterait votre nom
+   et votre adresse sur GitHub. Tant que la copie n'est pas faite, `--signature` **refuse** :
+   `signature introuvable`. Et `--signature MODELE` refuse aussi, exprès.
+3. Retirer le commentaire HTML en tête du fichier : il part **avec** la signature dans le corps
+   du courriel, invisible au rendu mais lisible en « afficher la source ».
 
 ⚠️ **Sans le drapeau `--signature`, les courriels partent sans signature** — un message créé par
 COM n'en reçoit jamais automatiquement, et rien ne le signale.
@@ -99,7 +131,7 @@ supprimer définitivement, signaler toute adresse inconnue. Celles-là protègen
 |---|---|
 | `CLAUDE.md` | **le hub** — se charge tout seul, porte l'accès, les règles, la carte |
 | `settings.json` | permissions et les deux hooks qui tiennent la mémoire à jour |
-| `scripts\` | **le moteur** — `outlook_mail` · `outlook_calendar` · `veille_poste` · `check_setup` |
+| `scripts\` | **le moteur, six scripts** — `outlook_mail` · `outlook_calendar` · `veille_poste` · `check_setup` · `factures` · `ost_reader` |
 | `skills\poste-outlook\` | la méthode : trier, chercher, rédiger, chiffrer |
 | `agents\courriels.md` | l'agent délégué pour les passes longues |
 | `profiles\` | votre signature, vos profils métier |

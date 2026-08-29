@@ -8,7 +8,8 @@
 > entreprise. Tout le reste — accès, pièges, règles — a été **mesuré en conditions réelles**
 > et vaut pour n'importe quelle installation Outlook sur Windows.
 >
-> Dernière mise à jour : *(à dater à la première passe)*
+> Dernière mise à jour : **2026-08-29** — première passe d'audit du poste (26 fichiers,
+> 5 agents). Les corrections de cette passe sont marquées *(mesuré/corrigé le 2026-08-29)*.
 
 *Poste offert — une gracieuseté de Sylvain Leduc, Constructo AI inc. — constructoai.ca*
 
@@ -19,17 +20,30 @@ les **courriels**, le **calendrier**, les **dossiers de projets**, et la **compt
 
 ## 0. Point d'entrée
 
-**Double-cliquer `Constructo_AI.bat`.** Il vérifie l'outillage, ouvre Outlook, **attend que MAPI
-réponde vraiment** (pas seulement que le processus existe), met Claude à jour, puis lance la
-session. Si l'outillage manque, il passe en **mode dégradé** et le dit au lieu de faire
-semblant.
+**Double-cliquer `Constructo_AI.bat`.** Six étapes : ① il **inventorie** l'outillage sans rien
+toucher · ② il **installe ce qui manque** — Claude Code, Python, pywin32, Git pour Windows —
+après **une seule question**, au niveau utilisateur, sans droits administrateur · ③ il ouvre
+Outlook · ④ il met Claude à jour · ⑤ il **attend que MAPI réponde vraiment**, pas seulement que
+le processus existe, borné à ~40 s · ⑥ il lance la session. Si un élément ne peut pas être
+installé, il passe en **mode dégradé** et le dit au lieu de faire semblant.
+
+**Si rien ne manque, il ne pose aucune question** et enchaîne directement.
+
+⚠️ Il n'installe **jamais** Outlook classique — ça ne se fait pas sans intervention — ni votre
+abonnement Claude (Pro, Max, Team, Enterprise ou Console : *le plan gratuit n'inclut pas Claude
+Code*). Il les signale.
+
+*(Étape ② ajoutée le 2026-08-29. Auparavant le `.bat` n'installait que `pywin32` et s'arrêtait
+en `exit /b 1` si Claude Code manquait — voir §1 et le `JOURNAL.md`.)*
 
 | Élément | Rôle |
 |---|---|
-| `Constructo_AI.bat` | le point d'entrée |
+| `.claude\Constructo_AI.bat` | le point d'entrée — ⚠️ **il n'est PAS à la racine** ; il se replace tout seul |
 | `.claude\CLAUDE.md` | ce fichier — **il fait foi**, et se charge tout seul |
 | `.claude\settings.json` | `bypassPermissions` + les deux hooks |
-| `.claude\scripts\` | **le moteur** : `outlook_mail.py`, `outlook_calendar.py`, `veille_poste.py`, `check_setup.py` |
+| `.claude\scripts\` | **le moteur — SIX scripts** : `outlook_mail.py`, `outlook_calendar.py`, `veille_poste.py`, `check_setup.py`, `factures.py` (§6), `ost_reader.py` (§1) |
+| `.claude\references\depannage.md` | le guide de panne — **ne se charge pas seul** ; ce n'est pas un satellite de mémoire (§7), c'est une référence |
+| `.claude\INSTALLATION.md` | la mise en service, pas à pas |
 | `.claude\profiles\` | signature HTML, profils métier |
 | `.claude\skills\poste-outlook\` | la méthode |
 | `.claude\agents\courriels.md` | l'agent délégué |
@@ -46,8 +60,17 @@ main-d'œuvre, on raisonne en **EG chevronné**, pas en assistant générique. L
 `.claude\profiles\ENTREPRENEUR_GENERAL_QC_profil.txt`.
 
 ⚠️ **144 Ko, 3529 lignes — jamais en entier.** Les plages utiles :
-`1–345` règles de prix · `346–600` vérification arithmétique d'un agrandissement ·
-`3333–3529` taux horaires CCQ janvier 2026 et charges patronales par secteur.
+`1–345` règles de prix · `346–385` vérification arithmétique d'un agrandissement (au-delà
+de 385 et jusqu'à 600, c'est autre chose : toit plat, structure seule, cohérence inter-pages) ·
+`3331–3381` charges patronales et grilles APCHQ consolidées, **en vigueur au 28 décembre 2025**
+(`profil:3333`) · `3382–3529` **taux horaires CCQ de janvier 2026** par métier (`profil:3383`).
+
+🔴 **DEUX blocs, DEUX dates — ne jamais les confondre.** Le millésime des charges patronales
+n'est pas celui des taux horaires. Le fichier lui-même est généré le 17 mars 2026
+(`profil:3336`). ➜ **Dire de quel bloc vient le chiffre** avant de l'annoncer.
+
+⚠️ Le socle tarifaire au pi² est millésimé **Québec 2025** (`profil:1050`, `:3324`) : le dire
+avant d'annoncer un prix en 2026.
 
 Les quatre réflexes, qui tiennent sans ouvrir le fichier :
 
@@ -60,14 +83,29 @@ Les quatre réflexes, qui tiennent sans ouvrir le fichier :
 
    🔴 **DEUX FORMULES, PAS UNE — les contingences varient selon le type de projet :**
 
-   | Type | Majoration | Sous-total HT | TTC |
-   |---|---|---|---|
-   | **Neuf** | Admin 3 % + Contingences **12 %** + Profit 15 % | `base × 1,30` | `base × 1,30 × 1,14975` |
-   | **Rénovation** | Admin 3 % + Contingences **15 %** + Profit 15 % | `base × 1,33` | `base × 1,33 × 1,14975` |
+   | Type de projet | Admin | Conting. | Profit | Sous-total HT | profil |
+   |---|---|---|---|---|---|
+   | **Résidentiel neuf** | 3 % | **12 %** | 15 % | `base × 1,30` | l.57 |
+   | **Résidentiel rénovation** | 3 % | **15 %** | 15 % | `base × 1,33` | l.1872 |
+   | **Commercial neuf** | 3 % | **10 %** | 15 % | `base × 1,28` | l.2277 |
+   | **Commercial rénovation** | **4 %** | **15 %** | 15 % | `base × 1,34` | l.2690 |
+   | **Institutionnel** | **5 %** | **10 %** | 15 % | `base × 1,30` | l.3151 |
 
-   **Le profit est toujours 15 %** — lui ne varie jamais. Admin et contingences, si.
-   ➜ **Demander le type de projet avant de chiffrer**, ou l'annoncer explicitement. Sur
-   100 000 $ de coût de base, confondre les deux coûte **3 449,25 $**.
+   TTC = sous-total HT × **1,14975** dans tous les cas.
+
+   🔴 **Les majorations sont ADDITIVES sur le coût de base, jamais composées.**
+   3 + 12 + 15 = 30 % donne **1,30** — et non 1,03 × 1,12 × 1,15 = 1,3266. Le profil le pose
+   explicitement (`profil:1098`) et ses cinq régimes bouclent tous en additif.
+
+   **Le profit est toujours 15 %** — lui ne varie jamais. **L'administration ET les
+   contingences varient, elles** : 3 % d'admin n'est vrai qu'en résidentiel et en commercial
+   neuf. ➜ **Demander le type de projet avant de chiffrer**, ou l'annoncer explicitement. Sur
+   100 000 $ de coût de base, confondre résidentiel neuf et rénovation coûte **3 000 $ HT**,
+   soit **3 449,25 $ TTC**.
+
+   *(Corrigé le 2026-08-29 : le hub n'exposait que 2 régimes sur 5 et figeait l'admin à 3 % —
+   un chiffrage commercial ou institutionnel fait « selon le hub » était donc faux. Régimes
+   relevés par `grep -inE "contingences\s*[0-9]+\s*%" profil.txt`, arithmétique revérifiée.)*
 
    ⚠️ **Ne pas gonfler les contingences pour un risque non confirmé au plan.** Un risque
    pressenti se signale « à confirmer, 0 $ d'impact » ; il ne se chiffre pas en douce.
@@ -106,14 +144,38 @@ Si Outlook fonctionne pour l'utilisateur, l'outil fonctionne.
 ⚠️ **Ce dossier est destiné à un espace synchronisé (OneDrive, SharePoint).** Il ne doit
 **jamais** contenir de secret — mot de passe, jeton, clé d'API, numéro de compte de taxe.
 
-C'est la seule voie qui tienne aujourd'hui : l'authentification de base d'Exchange Online est
-retirée (IMAP/POP fin 2022, SMTP AUTH avril 2026).
+C'est la voie **nominale**, et la seule qui atteigne la boîte *vivante* : l'authentification de
+base d'Exchange Online est retirée (IMAP/POP fin 2022, SMTP AUTH avril 2026 — les deux dates
+sont passées).
+
+🔴 **Ce n'est pourtant pas la seule voie exposée sur ce poste.** `.claude\scripts\ost_reader.py`
+lit un fichier `.ost`/`.pst` **en binaire, sans Outlook, sans MAPI et sans profil authentifié**
+— y compris pendant qu'Outlook verrouille l'en-tête du fichier, qu'il contourne par balayage.
+Un `.ost` contient le courrier **en clair**. ➜ Ne l'employer que sur un fichier dont on connaît
+la provenance, l'annoncer quand on s'en sert, et **ne jamais déposer un `.ost` dans ce dossier
+synchronisé**. *(Mesuré le 2026-08-29 : `ost_reader.py:1-23,34,49-91` ; aucun `win32com` dans
+le fichier. Le hub affirmait « c'est la seule voie qui tienne » — c'était faux.)*
 
 | Prérequis | |
 |---|---|
 | **Outlook classique** | celui du Microsoft Store **n'expose pas MAPI/COM** — le kit ne sait pas le piloter |
 | **Python 3.x** | `pywin32` est installé automatiquement par `Constructo_AI.bat` |
-| **Claude Code** | `claude.cmd` accessible dans le PATH |
+| **Claude Code** | la commande `claude` accessible dans le PATH — **pas `claude.cmd`** (voir ci-dessous) |
+| **Windows 10 1809+** | ou Windows Server 2019+ ; 4 Go de RAM ; compte Pro, Max, Team, Enterprise ou Console (le plan gratuit **n'inclut pas** Claude Code) |
+| **Git pour Windows** | *optionnel mais recommandé ici* : sans lui, Claude Code n'a **pas** l'outil Bash et bascule sur PowerShell — or les commandes des §2 et §3 sont écrites en shell POSIX |
+
+🔴 **`claude.cmd` N'EXISTE PAS avec l'installateur natif — et le `.bat` le cherchait.**
+Mesuré le 2026-08-29 sur le poste de l'auteur : `where claude.cmd` → **INTROUVABLE** ;
+`where claude` → `C:\Users\<user>\.local\bin\claude.exe` (v2.1.251). Le nom `claude.cmd`
+n'apparaît qu'avec une installation **npm** (`%APPDATA%\npm\claude.cmd`, absent ici).
+`Constructo_AI.bat` testait `where claude.cmd` puis `exit /b 1` : **le lanceur refusait de
+démarrer sur un poste où Claude Code était pourtant installé et fonctionnel.** Corrigé le
+2026-08-29 — le `.bat` teste désormais `where claude`, et installe si absent.
+
+➜ **Toujours tester `claude`, jamais `claude.cmd`.** L'installateur natif place le binaire dans
+`%USERPROFILE%\.local\bin` (données dans `%USERPROFILE%\.local\share\claude`), **sans droits
+administrateur**, et se met à jour tout seul en arrière-plan.
+Source : [docs officielles](https://code.claude.com/docs/en/setup), consultées le 2026-08-29.
 
 ### Vérifier au démarrage
 
@@ -167,8 +229,12 @@ python "$K" delete --id <EntryID>                 # → Éléments supprimés, j
 
 ⚠️ **`--json` se place AVANT la sous-commande** pour `outlook_mail.py` — c'est un drapeau
 global : `python "$K" --json list --limit 25`. Le mettre après (`list --limit 25 --json`)
-rend `unrecognized arguments: --json` et **un code de sortie 0** : la commande semble avoir
-réussi. Dans `outlook_calendar.py`, à l'inverse, il se place **après** (`list --json`).
+rend `unrecognized arguments: --json` et **un code de sortie 2**, sur stderr : la commande
+échoue *bruyamment*, elle ne fait pas semblant de réussir. Dans `outlook_calendar.py`, à
+l'inverse, il se place **après** (`list --json`) — et n'y existe que pour `list`.
+*(Corrigé le 2026-08-29 : le hub annonçait un code 0. `outlook_mail.py:645` fait
+`p.parse_args()`, pas `parse_known_args` ; argparse sort donc en 2. La règle de placement,
+elle, est juste — `--json` est bien déclaré l.588, avant `add_subparsers` l.589.)*
 `--account "adresse@domaine"` pour viser une boîte précise.
 
 ### 🔴 `--signature` n'est PAS automatique — sans lui, le courriel part NU
@@ -178,7 +244,29 @@ message part sans formule de politesse, sans titre et sans coordonnées — et *
 signale** : le script réussit et rend `status: brouillon créé`.
 
 ➜ **Poser `--signature` sur TOUT `draft` et TOUT `reply`.** Il lit
-`.claude\profiles\signature_<nom>.html` (défaut : `defaut` — renommer `signature_MODELE.html` en `signature_defaut.html`, ou passer votre propre nom : `--signature moi`).
+`.claude\profiles\signature_<nom>.html` (défaut : `defaut`, ou votre propre nom :
+`--signature moi`).
+
+### 🔴 La signature ne se livre PAS — il faut la créer
+
+**Un dépôt fraîchement cloné ne contient aucune signature remplie** : `.gitignore` ne publie que
+`signature_MODELE.html`. C'est délibéré — une signature remplie porte votre nom, votre
+téléphone et votre adresse, et n'a rien à faire sur GitHub.
+
+➜ **Premier geste avant tout envoi** : copier `profiles\signature_MODELE.html` en
+`profiles\signature_defaut.html`, puis le remplir **depuis un courriel réellement envoyé** —
+jamais depuis `%APPDATA%\Microsoft\Signatures`, souvent périmé. Retirer aussi le commentaire
+HTML en tête : il part **avec** la signature dans le corps du message (invisible au rendu,
+lisible en « afficher la source »).
+
+Tant que ce n'est pas fait, le script **refuse franchement** au lieu d'improviser :
+`--signature` sans fichier lève `signature introuvable`, et `--signature MODELE` lève
+`refus : MODELE est le GABARIT, pas une signature`. *(Deux garde-fous ajoutés le 2026-08-29 :
+auparavant le gabarit était livré sous le nom `defaut`, et `--signature` réussissait en
+envoyant « PRENOM NOM / adresse@exemple.ca » chez un vrai client.)*
+
+🔴 **Le témoin avant le premier envoi :** `grep -c "PRENOM NOM" .claude/profiles/signature_defaut.html`
+doit rendre **0**. S'il rend 1, le gabarit n'a pas été rempli.
 ⚠️ Pour vérifier, chercher le **bloc de coordonnées**, pas le mot « Cordialement » : dans une
 réponse, il vient souvent du fil cité.
 
@@ -257,9 +345,16 @@ sortent en code 1. Il rend l'écriture *délibérée*, jamais accidentelle — p
 `--yes-send` du courriel.
 
 ⚠️ **`update` et `delete` portent sur l'élément STOCKÉ** : si l'`EntryID` désigne une série,
-c'est **toute la série** qui bouge. Le script avertit ; il ne devine pas l'intention.
+c'est **toute la série** qui bouge.
 
-### Six pièges, tous SILENCIEUX — le compte a l'air juste et il est faux
+🔴 **`update` avertit ; `delete` NE PRÉVIENT PAS.** `update` imprime l'avertissement « SERIE »
+sur stderr *avant* de modifier (`outlook_calendar.py:201-203`). `delete`, lui, enregistre
+`serie=True` dans son rapport, **puis supprime, puis l'annonce** (`:227-229`) : l'information
+arrive une fois la série entière partie aux Éléments supprimés. ➜ **Vérifier `IsRecurring` avec
+`show --id` AVANT tout `delete`.** *(Mesuré le 2026-08-29 ; le hub disait « le script avertit »
+sans distinguer les deux.)*
+
+### Huit pièges, tous SILENCIEUX — le compte a l'air juste et il est faux
 
 1. 🔴 **`IncludeRecurrences = $true` PUIS `Sort("[Start]")`, dans cet ordre.** Sans le drapeau,
    une série récurrente ne rend qu'**une** occurrence. Sans le tri, `Restrict` ne développe pas
@@ -278,6 +373,28 @@ c'est **toute la série** qui bouge. Le script avertit ; il ne devine pas l'inte
 6. **Console Windows en cp1252** : un caractère hors latin-1 lève `UnicodeEncodeError`. En
    Python, `sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")` — à poser dans
    **tout** script qui lit ou affiche du contenu du poste.
+   ⚠️ *Mesuré le 2026-08-29 : `check_setup.py` — le portail obligatoire du §1 — **ne l'a pas**,
+   et il imprime des noms de comptes MAPI. Les autres scripts l'ont, mais en `errors="replace"`
+   (le caractère est détruit) plutôt que `backslashreplace` (il reste récupérable).*
+
+### 🔴 Deux faux zéros mesurés dans `outlook_calendar.py` — le 2026-08-29
+
+7. **`--jours 0` rend TOUJOURS zéro rendez-vous.** `outlook_calendar.py:133-135` porte trois
+   affectations dont les deux premières sont **intégralement écrasées** par la troisième :
+   ```python
+   fin = datetime.now().replace(hour=23, minute=59)
+   fin = fin.replace(day=fin.day) if a.jours == 0 else None
+   fin = debut + timedelta(days=a.jours)      # <- ecrase tout
+   ```
+   L'intention lisible était « aujourd'hui jusqu'à 23 h 59 » ; l'effet réel est une fenêtre
+   `[maintenant, maintenant]` → **0 résultat, code de sortie 0, aucun avertissement**.
+   ➜ **Ne jamais employer `--jours 0`.** Pour la journée en cours : `--jours 1`.
+8. **`--limite` tronque en silence, à 100 par défaut** (`outlook_calendar.py:141,248`), et
+   l'en-tête affiche « N rendez-vous sur X jours » sans jamais dire qu'il y en avait plus. Avec
+   `IncludeRecurrences`, une série quotidienne sature les 100 à elle seule. ➜ Le poser
+   explicitement, et se méfier d'un compte qui tombe pile sur la limite.
+   ⚠️ `list` part de **maintenant** (`:132`) : à 15 h, il ne montre ni la réunion de 9 h ni
+   celle en cours.
 
 ### ⚠️ Ce qu'un calendrier ne dit pas
 
@@ -285,11 +402,16 @@ Une entrée de planning peut n'avoir **ni `Location`, ni `Categories`, ni corps*
 sujet et des dates. Vérifier avant de promettre qu'on peut rattacher un jalon à un dossier :
 souvent il faut croiser avec les fichiers de projet.
 
-### 🔴 À COMPLÉTER — les calendriers du poste
+### Les calendriers du poste — chez le satellite, pas ici
 
-| Calendrier | Contenu |
-|---|---|
-| *(lancer `calendriers` et remplir)* | |
+`python "$C" calendriers` les énumère. **Le relevé se consigne dans
+`.claude\ETAT_calendrier.md` §0**, jamais ici : cette donnée grossit et vieillit, et le hub
+reste petit (§8-2).
+
+*(Corrigé le 2026-08-29 : le hub portait une table « À COMPLÉTER » qui doublonnait exactement
+`ETAT_calendrier.md:19-25` — deux emplacements pour la même donnée, aucun ne pointant vers
+l'autre, alors que le satellite proclame « Ne duplique rien » en tête. C'est le cas d'école
+que le §7 annonce. Le §6 traite bien la comptabilité de cette façon : renvoi, pas recopie.)*
 
 ---
 
@@ -328,7 +450,7 @@ vide a presque toujours une cause technique.
 ### 🔴 LA RÈGLE DU MOTIF TROP STRICT
 
 **Un motif trop strict sur la CASSE ou l'ESPACEMENT ne rend pas une erreur : il rend un
-résultat FAUX qui a l'air juste.** Quatre occurrences mesurées en une seule journée :
+résultat FAUX qui a l'air juste.** Cinq occurrences mesurées, dont quatre en une seule journée :
 
 | Motif | Ce qu'il a fait |
 |---|---|
@@ -336,6 +458,7 @@ résultat FAUX qui a l'air juste.** Quatre occurrences mesurées en une seule jo
 | `\d{12}` sur des noms de fichiers | rate 16 fichiers sur 81, et ignore un dossier entier |
 | `statut == "BROUILLON"` | écarte `"brouillon"` en minuscules — **40 % du total** |
 | `[0-9]{10}TQ[0-9]+` | le vrai numéro s'écrit **avec une espace**, donc invisible ; celui d'un tiers s'écrit collé, donc visible. Le motif a **caché le bon et ramassé le mauvais** |
+| `grep -oE "[A-Z]:\\..."` en shell | **2026-08-29** — balayage des chemins en dur du poste : rendu **0 sur 10**, sans erreur. Le motif était cassé par l'échappement du shell, et son zéro avait l'air d'une mesure. Refait en Python : 10 chemins, tous génériques |
 
 ➜ **Trois réflexes :** insensible à la casse par défaut (`-match`, `re.IGNORECASE`, `grep -i`) ·
 tolérer l'espacement (`\s*`) · **compter en deux variantes** — si strict et souple divergent,
@@ -407,6 +530,24 @@ perçue par l'une et réclamée contre l'autre, les déclarations ne concordent 
 déclaration — jamais une occurrence trouvée ailleurs dans le document : un tel fichier contient
 aussi les numéros des **fournisseurs**.
 
+### L'outil : `factures.py`
+
+```bash
+python .claude/scripts/factures.py --dossier "<CHEMIN>" [--annee 2026] \
+       [--taux1 0.05] [--taux2 0.09975] [--conventions] [--json]
+```
+
+Il inventorie un dossier de factures HTML/PDF, **dédoublonne par (horodatage + client lu DANS
+le document)**, et valide chaque montant par le quadruplet HT / taxe1 / taxe2 / total : *ce qui
+ne boucle pas est ISOLÉ en « à vérifier », jamais deviné*. Lecture seule. `--taux2 0` couvre les
+provinces à taxe unique. *(Ajouté le 2026-08-29 : le hub citait `--taux1`/`--taux2` au §0 sans
+jamais nommer le script qui les accepte, et la carte ignorait ce script.)*
+
+⚠️ Deux limites mesurées le 2026-08-29 : `--annee` ne filtre **pas** les PDF (`factures.py:130-134`)
+— tout l'historique PDF ressort alors en « PDF sans HTML correspondant » ; et deux factures de
+même horodatage **pour le même client** s'écrasent sans avertissement (`:150`), la perdue
+n'apparaissant dans aucun compteur.
+
 ### Rapprocher les factures du disque et celles d'un ERP
 
 ⚠️ Les deux ne partagent en général **aucune numérotation**. Rapprocher **par client + date +
@@ -475,6 +616,14 @@ une panne **partielle**, donc invisible.
 Windows. Écrire en **binaire** (`open(p,'wb')`) ou passer `newline=''`. Et se méfier des
 échappements : `\02` devient un octet 0x02, `\v` une tabulation verticale — les deux sont
 arrivés, et le texte restait lisible à l'œil.
+
+🔴 **Troisième occurrence, mesurée le 2026-08-29 : `"\references"`.** Un script de correction de
+ce fichier a écrit `"| \`.claude\references\depannage.md\`"` en chaîne Python **non brute** :
+`\r` est un **retour chariot**. La ligne est partie sur disque en `.claude` + `CR` + `eferences`,
+Python n'a émis qu'un `SyntaxWarning` pour les *autres* échappements — jamais pour celui-là, qui
+est valide. ➜ **Écrire les textes de correction en `r"..."`, ou mieux : les faire transiter par
+un fichier de données** que le script lit sans jamais les interpréter. Et **compter les octets
+`\r` après écriture** : `python -c "print(open(P,'rb').read().count(b'\r'))"` doit rendre 0.
 
 ```bash
 python -c "d=open(r'.claude\agents\courriels.md','rb').read(); print('CRLF' if b'\r\n' in d else 'LF')"

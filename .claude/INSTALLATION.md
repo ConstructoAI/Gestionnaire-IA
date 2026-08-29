@@ -49,10 +49,14 @@ de ce qui est présent, vous montre la liste de ce qui manque, et **demande une 
     - pywin32           le pont vers Outlook
     - Git pour Windows  optionnel : donne l'outil Bash a Claude
 
-  Tout s'installe pour VOTRE compte seulement. Aucune elevation UAC,
-  rien n'est modifie pour les autres utilisateurs du poste.
+  Claude Code, Python et pywin32 s'installent pour VOTRE compte seulement,
+  sans elevation : rien n'est modifie pour les autres utilisateurs.
 
-  Installer maintenant ? [O/N]
+  > Git pour Windows, LUI, s'installe pour toute la machine et affichera
+    une invite UAC. Vous pouvez la REFUSER : Git est optionnel, et tout
+    le reste continue sans lui.
+
+  Installer maintenant ? [O/N, defaut N]
 ```
 
 Répondez `O` et il enchaîne tout seul. Répondez autre chose et il démarre quand même, en mode

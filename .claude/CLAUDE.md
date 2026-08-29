@@ -22,12 +22,18 @@ les **courriels**, le **calendrier**, les **dossiers de projets**, et la **compt
 
 **Double-cliquer `Constructo_AI.bat`.** Six étapes : ① il **inventorie** l'outillage sans rien
 toucher · ② il **installe ce qui manque** — Claude Code, Python, pywin32, Git pour Windows —
-après **une seule question**, au niveau utilisateur, sans droits administrateur · ③ il ouvre
+après **une seule question** · ③ il ouvre
 Outlook · ④ il met Claude à jour · ⑤ il **attend que MAPI réponde vraiment**, pas seulement que
 le processus existe, borné à ~40 s · ⑥ il lance la session. Si un élément ne peut pas être
 installé, il passe en **mode dégradé** et le dit au lieu de faire semblant.
 
 **Si rien ne manque, il ne pose aucune question** et enchaîne directement.
+
+⚠️ **Claude Code, Python et pywin32 s'installent au niveau utilisateur, sans UAC. Git pour
+Windows, non** : *(mesuré le 2026-08-29 sur une machine réelle)* son installateur réclame
+l'élévation, et winget n'expose aucune version par compte. L'invite peut être **refusée** —
+Git est optionnel, tout le reste continue. Sans lui, Claude Code n'a pas l'outil Bash et
+bascule sur PowerShell.
 
 ⚠️ Il n'installe **jamais** Outlook classique — ça ne se fait pas sans intervention — ni votre
 abonnement Claude (Pro, Max, Team, Enterprise ou Console : *le plan gratuit n'inclut pas Claude

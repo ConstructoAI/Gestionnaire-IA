@@ -191,10 +191,19 @@ echo   Il manque :
 if defined MANQUE_CLAUDE  echo     - Claude Code       installateur officiel, sans droits admin
 if defined MANQUE_PYTHON  echo     - Python 3          requis pour les courriels et le calendrier
 if defined MANQUE_PYWIN32 echo     - pywin32           le pont vers Outlook
-if defined MANQUE_GIT     echo     - Git pour Windows  optionnel : donne l'outil Bash a Claude
+if defined MANQUE_GIT     echo     - Git pour Windows  optionnel ; DEMANDERA les droits admin
 echo.
-echo   Tout s'installe pour VOTRE compte seulement. Aucune elevation UAC,
-echo   rien n'est modifie pour les autres utilisateurs du poste.
+echo   Claude Code, Python et pywin32 s'installent pour VOTRE compte seulement,
+echo   sans elevation : rien n'est modifie pour les autres utilisateurs.
+rem  Git fait exception, et il faut le dire : mesure du 2026-08-29 sur une
+rem  machine reelle, l'installateur reclame l'elevation. winget n'expose aucune
+rem  version de Git par compte. Le .bat promettait le contraire pour tout le lot.
+if defined MANQUE_GIT (
+  echo.
+  echo   ^> Git pour Windows, LUI, s'installe pour toute la machine et affichera
+  echo     une invite UAC. Vous pouvez la REFUSER : Git est optionnel, et tout
+  echo     le reste continue sans lui.
+)
 echo.
 
 rem  Pre-remplie a N : si l'entree est redirigee - raccourci, tache planifiee -
@@ -387,6 +396,7 @@ rem --- Git pour Windows ------------------------------------------------------
 :install_git
 if not defined MANQUE_GIT goto ouvrir_outlook
 echo   Installation de Git pour Windows...
+echo   ^(une invite UAC va s'afficher - vous pouvez la refuser^)
 echo.
 if defined A_WINGET (
   winget install --id Git.Git --silent --accept-source-agreements --accept-package-agreements

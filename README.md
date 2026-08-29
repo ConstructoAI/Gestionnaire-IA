@@ -42,8 +42,13 @@ un fichier d'agent en CRLF **se désenregistre sans la moindre erreur** — voir
 
 **C'est tout.** Le `.bat` se replace tout seul au bon niveau, **inventorie l'outillage**, puis
 **installe ce qui manque** — Claude Code, Python, pywin32, Git pour Windows — après **une seule
-question**, au niveau utilisateur, **sans droits administrateur**. Ensuite il ouvre Outlook,
-**attend que la boîte réponde vraiment**, et démarre la session.
+question**. Ensuite il ouvre Outlook, **attend que la boîte réponde vraiment**, et démarre la
+session.
+
+⚠️ **Claude Code, Python et pywin32 s'installent pour votre compte, sans UAC. Git pour Windows,
+non** — son installateur réclame l'élévation et winget n'en propose pas de version par compte.
+L'invite peut être **refusée** : Git est optionnel. *(Mesuré sur une machine Windows 11 neuve
+le 2026-08-29.)*
 
 **Si rien ne manque, il ne pose aucune question** et enchaîne directement.
 

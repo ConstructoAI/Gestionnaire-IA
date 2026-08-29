@@ -467,3 +467,40 @@ c'est **ce qui etait faux et comment on l'a su** qui servira dans six mois.
   silencieux et faux.
   ➜ Regle ajoutee a mes propres passes : lire un fichier CRLF en normalisant d'abord, et faire
   transiter tout texte a antislash par un FICHIER, jamais par un heredoc.
+
+- **2026-08-29** — ✅ LA CHAINE COMPLETE D'INSTALLATION EST DESORMAIS PROUVEE.
+  Les entrees precedentes de ce journal disaient, a juste titre au moment ou elles ont ete
+  ecrites, que les installations reelles n'avaient jamais tourne. **Ce n'est plus le cas.**
+  Deroulement observe sur une machine Windows 11 neuve, de bout en bout :
+  · Claude Code par curl (voie 1), v2.1.251, sans UAC · Python 3.13.15 par winget
+  `--scope user`, telecharge depuis python.org, hachage verifie, **sans UAC** · pywin32 par pip
+  · Git 2.55.0.3 par winget · `[3/6]` Outlook · `[4/6]` `Claude Code is up to date` ·
+  `[5/6]` attente MAPI.
+  ⚠️ Points qui restaient incertains et qui sont maintenant **mesures** :
+  · `--scope user` sur le paquet Python de winget **fonctionne** — je pensais pouvoir me tromper ;
+  · les deux rattrapages de PATH trouvent bien leur cible :
+  `%LOCALAPPDATA%\Programs\Python\Python313\python.exe` et `%ProgramFiles%\Git\cmd\git.exe` ;
+  · le message d'accord `msstore` passe tout seul grace a `--accept-source-agreements`.
+
+- **2026-08-29** — 🔴 UNE PROMESSE QUE LE POSTE NE TENAIT PAS : "Aucune elevation UAC".
+  Le `.bat` l'affichait pour TOUT le lot. Mesure sur la meme machine : Git for Windows imprime
+  **"Le programme d'installation demande a s'executer en tant qu'administrateur"**.
+  `winget search Git.Git` ne rend qu'un seul paquet, sans variante par compte : l'installation
+  est forcement machine, donc UAC. La promesse etait donc fausse, et elle l'etait sur l'ecran
+  ou l'utilisateur donne son accord.
+  ⚠️ C'est exactement ce que le reflexe n°4 de la posture metier interdit : **ne rien promettre
+  qu'on ne tienne**. Le poste se l'appliquait aux tarifs et aux delais, pas a lui-meme.
+  ➜ Corrige dans le `.bat` ET dans les trois documents qui repetaient la promesse
+  (`CLAUDE.md` §0, `README.md`, `INSTALLATION.md`) : Claude Code, Python et pywin32 s'installent
+  sans elevation ; Git, non, et l'invite **peut etre refusee** puisqu'il est optionnel.
+  Git installe quand meme sur la machine d'essai, l'invite ayant ete acceptee.
+
+- **2026-08-29** — ✅ LES SIX ETAPES SONT ALLEES JUSQU'AU BOUT. `[5/6]` puis
+  `[6/6] Demarrage : Opus 5 contexte 1M, effort MAX, autonomie complete`, suivi de
+  `Welcome to Claude Code v2.1.251` et du choix de theme au premier lancement.
+  **Sur une machine qui, dix minutes plus tot, n'avait ni Python, ni Git, ni Claude Code.**
+  Le double-clic unique promis par le README est donc tenu, mesure a l'appui.
+  ⚠️ Nuance a ne pas gommer : la capture ne permet pas de distinguer si l'attente MAPI a
+  REUSSI (`Outlook repond. Boite accessible.`) ou si elle a EXPIRE au bout des ~40 s avant de
+  demarrer quand meme. Les deux chemins menent a `[6/6]`. Le demarrage de la session est
+  prouve ; la reponse effective de MAPI sur cette boite-la ne l'est pas encore.

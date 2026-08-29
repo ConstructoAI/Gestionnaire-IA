@@ -553,3 +553,18 @@ c'est **ce qui etait faux et comment on l'a su** qui servira dans six mois.
   chemin contenant une parenthese. Agent 1 avait pourtant teste l'espace, l'apostrophe, l'accent
   et meme la racine d'un lecteur. La parenthese manquait a la liste — et c'est le seul de ces
   cas que Windows fabrique TOUT SEUL, sans que l'utilisateur ait rien demande.
+
+- **2026-08-29** — ✅ Correctif confirme sur un DEUXIEME poste reel, celui du proprietaire.
+  Lancement du `.bat` corrige : "cela a fonctionne du premier coup", et **il a ouvert Outlook**.
+  Le poste avait deja tout l'outillage, donc le chemin parcouru est l'autre : inventaire tout au
+  vert, aucune question posee, puis les etapes 3 a 6 jusqu'a la session.
+  ⚠️ Detail qui compte : c'est la PREMIERE fois que la branche `start "" "%OUTLOOK_EXE%"` est
+  exercee. Sur le poste d'essai precedent, Outlook tournait deja et le `.bat` affichait
+  "Outlook est deja lance" — la detection des six chemins d'installation d'Office, elle, n'avait
+  jamais servi a lancer quoi que ce soit. Elle sert, et elle trouve.
+  ⚠️ **A NE PAS SUR-INTERPRETER.** Ce qui est etabli : le lanceur va de bout en bout sur un
+  poste deja equipe. Ce qui ne l'est PAS, faute d'avoir ete rapporte : laquelle des deux sorties
+  de l'etape `[5/6]` s'est affichee — `Outlook repond. Boite accessible.` (MAPI a repondu) ou
+  `Outlook met plus de temps que prevu` (l'attente a expire et le poste a demarre quand meme).
+  **Les deux menent a `[6/6]`**, et un succes visible ne distingue pas les deux. La reponse
+  effective de MAPI reste donc **non mesuree**, comme la veille.

@@ -49,7 +49,8 @@ en `exit /b 1` si Claude Code manquait — voir §1 et le `JOURNAL.md`.)*
 | `.claude\settings.json` | `bypassPermissions` + les deux hooks |
 | `.claude\scripts\` | **le moteur — SIX scripts** : `outlook_mail.py`, `outlook_calendar.py`, `veille_poste.py`, `check_setup.py`, `factures.py` (§6), `ost_reader.py` (§1) |
 | `.claude\references\depannage.md` | le guide de panne — **ne se charge pas seul** ; ce n'est pas un satellite de mémoire (§7), c'est une référence |
-| `.claude\INSTALLATION.md` | la mise en service, pas à pas |
+| `.claude\INSTALLATION.md` | la mise en service, pas à pas — version anglaise : `INSTALLATION.en.md` |
+| `README.md` · `README.en.md` | la vitrine du dépôt. 🔴 **Le français fait foi** : une traduction est un doublon, et le §7 dit ce qu'il advient des doublons |
 | `.claude\profiles\` | signature HTML, profils métier |
 | `.claude\skills\poste-outlook\` | la méthode |
 | `.claude\agents\courriels.md` | l'agent délégué |

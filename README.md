@@ -1,5 +1,8 @@
 # Gestionnaire IA
 
+*🇬🇧 [English version](README.en.md) — **cette version française fait foi.** La traduction est
+tenue à jour à la main ; en cas de divergence, c'est le français qui a raison.*
+
 **Gérez vos courriels, votre calendrier, vos dossiers et votre comptabilité directement avec
 Claude AI — l'assistant d'Anthropic, branché sur votre propre boîte Outlook.**
 
@@ -29,7 +32,7 @@ inscription d'application.
 
 ---
 
-## Installation — deux gestes
+## Installation — trois gestes
 
 ```
 1. Telecharger ce depot  (bouton « Code » puis « Download ZIP », ou git clone)
@@ -55,6 +58,10 @@ le 2026-08-29.)*
 Il n'installe jamais Outlook classique, ni votre abonnement Claude : il les signale. Si quelque
 chose ne peut pas être installé, il le dit au lieu de faire semblant — chaque cas a son message
 et sa marche à suivre. Rien ne plante en silence.
+
+⏱️ **Une dizaine de minutes** sur une machine neuve. Ensuite, Claude Code affiche **une seule
+fois** deux écrans : le choix du thème (Entrée suffit), puis la **connexion** dans le
+navigateur — c'est là qu'il faut l'abonnement payant.
 
 Détail complet : **[INSTALLATION.md](.claude/INSTALLATION.md)**
 
@@ -109,6 +116,12 @@ dossier de factures.
   `signature_defaut.html` et le remplir, sinon le script refuse d'envoyer.
 - **`folders` masque les dossiers vides.** « Il n'y a pas d'archive » est un faux zéro :
   l'archive existe, elle est vide.
+- **`where python` trouve un Python qui n'en est pas un.** Windows livre un raccourci de
+  **0 octet** vers le Microsoft Store. Il *répond* : une vraie version s'il y a un Python
+  derrière, `Python est introuvable…` sinon — les deux non vides. Le seul test qui ne ment pas
+  est de faire **exécuter** du Python. *Trouvé sur une machine neuve, après que cinq agents
+  d'audit soient passés à côté : leurs faux exécutables de test étaient muets, le vrai est
+  bavard.*
 - **Un motif trop strict sur la casse ou l'espacement** ne rend pas une erreur : il rend un
   résultat faux qui a l'air juste. Mesuré cinq fois, dont quatre en une seule journée.
 

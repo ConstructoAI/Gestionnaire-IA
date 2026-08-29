@@ -504,3 +504,32 @@ c'est **ce qui etait faux et comment on l'a su** qui servira dans six mois.
   REUSSI (`Outlook repond. Boite accessible.`) ou si elle a EXPIRE au bout des ~40 s avant de
   demarrer quand meme. Les deux chemins menent a `[6/6]`. Le demarrage de la session est
   prouve ; la reponse effective de MAPI sur cette boite-la ne l'est pas encore.
+
+- **2026-08-29** — Le MANUEL avait cinq trous, mesures et combles.
+  Controle de `INSTALLATION.md` contre ce qui s'est REELLEMENT passe sur la machine d'essai :
+  · `bypassPermissions` **jamais explique** — la seule occurrence de "permission" etait dans la
+  table des fichiers, alors que le README en a une section entiere. C'est pourtant le manuel
+  qu'on suit AVANT de lancer ; · le **raccourci Microsoft Store pour Python** absent — la seule
+  mention du Store visait Outlook, or c'est ce raccourci qui a bloque l'installation ;
+  · **rien apres `[6/6]`** : zero occurrence de theme, connexion ou navigateur, alors que Claude
+  Code affiche DEUX ecrans avant la session, et que c'est la que bloque un plan gratuit ;
+  · **aucun renvoi vers `depannage.md`** depuis la section installation, et `depannage.md` ne
+  couvre que la boite, pas l'installation ; · le **telechargement GitHub** et `.gitattributes`
+  presents dans le README, absents du manuel.
+  ➜ Les cinq combles, plus une estimation de duree (~10 min : Python 28 Mo, Git 62 Mo) et un
+  tableau des causes d'echec d'installation. La verification de Python passe de
+  `python --version` a `python -c "print(84)"`, qui est le seul test qui ne ment pas.
+  ⚠️ Le README avait les deux memes trous cote pieges : le raccourci Store et l'apres-demarrage.
+  Combles aussi. Et son titre annoncait "deux gestes" pour un bloc qui en listait trois.
+
+- **2026-08-29** — Versions anglaises : `README.en.md` et `.claude\INSTALLATION.en.md`.
+  🔴 **Une traduction est un DOUBLON, et le §7 dit ce qu'il advient des doublons.** On ne peut
+  pas l'eviter ici — le depot est public et l'anglais elargit sa portee — donc on la rend
+  gerable : chacun des quatre fichiers porte en tete un renvoi vers l'autre langue et la
+  mention **"la version francaise fait foi"**. En cas de divergence, on sait laquelle corriger
+  en premier, ce qui est exactement ce que le §7 reproche aux doublons de rendre impossible.
+  ⚠️ Les deux fichiers anglais signalent ce que la traduction ne peut pas resoudre : le `.bat`
+  ne parle que francais (`O` = oui), `CLAUDE.md` et les gabarits sont en francais, et
+  `depannage.md` n'est pas traduit. Mieux vaut le dire que laisser un anglophone le decouvrir
+  devant l'invite `Installer maintenant ? [O/N]`.
+  Carte du hub mise a jour : elle porte desormais les quatre fichiers et la regle de preseance.

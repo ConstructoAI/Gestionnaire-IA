@@ -562,6 +562,10 @@ c'est **ce qui etait faux et comment on l'a su** qui servira dans six mois.
   exercee. Sur le poste d'essai precedent, Outlook tournait deja et le `.bat` affichait
   "Outlook est deja lance" — la detection des six chemins d'installation d'Office, elle, n'avait
   jamais servi a lancer quoi que ce soit. Elle sert, et elle trouve.
+  ✅ **Et le chemin etait `...\Gestionnaire-IA-main (2)\Gestionnaire-IA-main\.claude`** — donc
+  AVEC des parentheses, le cas exact qui fermait la fenetre en 255 vingt minutes plus tot.
+  La correction est donc validee en conditions reelles, sur le mode de defaillance lui-meme, et
+  plus seulement par ma reproduction en bac a sable.
   ⚠️ **A NE PAS SUR-INTERPRETER.** Ce qui est etabli : le lanceur va de bout en bout sur un
   poste deja equipe. Ce qui ne l'est PAS, faute d'avoir ete rapporte : laquelle des deux sorties
   de l'etape `[5/6]` s'est affichee — `Outlook repond. Boite accessible.` (MAPI a repondu) ou

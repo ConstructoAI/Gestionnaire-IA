@@ -6,7 +6,68 @@
 __pycache__/
 *.pyc
 
-# signatures et profils reels : chacun met les siens
+# sauvegardes locales : ne jamais publier
+*.bak
+*.orig
+*.backup
+*.sav
+*.tmp
+*~
+
+# ---------------------------------------------------------------------------
+# NE JAMAIS PUBLIER — ajoute le 2026-08-29 apres mesure : `git status` classait
+# ces fichiers comme publiables.
+#
+# *.ost / *.pst : un fichier de donnees Outlook contient TOUT le courrier EN
+# CLAIR. Le hub interdit deja d'en deposer un dans ce dossier synchronise
+# (section 1) ; ceci empeche en plus qu'il parte sur GitHub si quelqu'un passe
+# outre. `ost_reader.py` sait les lire sans mot de passe.
+#
+# settings.local.json : ecrit par Claude Code, il porte les regles de
+# permission propres au poste.
+# ---------------------------------------------------------------------------
+*.ost
+*.pst
+.env
+.env.*
+.claude/settings.local.json
+
+# ---------------------------------------------------------------------------
+# SIGNATURES - corrige le 2026-08-29
+#
+# On publie le MODELE, jamais une signature remplie.
+#
+# La version precedente portait `!signature_defaut.html`, qui reintroduisait
+# dans le depot exactement le fichier que le poste demande de remplir avec
+# VOTRE nom, VOTRE telephone, VOTRE adresse et VOTRE courriel. Rempli puis
+# `git add .`, il partait en clair sur GitHub.
+#
+# Effet voulu de ce reglage : un depot fraichement clone ne contient PAS
+# signature_defaut.html. `--signature` echoue alors franchement, en listant les
+# signatures disponibles - au lieu d'envoyer en silence un bloc
+# "PRENOM NOM / adresse@exemple.ca" a un vrai client. Voir CLAUDE.md section 2.
+# ---------------------------------------------------------------------------
 .claude/profiles/signature_*.html
 !.claude/profiles/signature_MODELE.html
-!.claude/profiles/signature_defaut.html
+
+# ---------------------------------------------------------------------------
+# LES SATELLITES - lire avant de publier
+#
+# ETAT_*.md et JOURNAL.md se publient VIDES : ce sont des gabarits, et ils
+# doivent arriver chez celui qui telecharge. Ils ne sont donc PAS ignores ici.
+#
+# 🔴 MAIS une fois remplis, ils contiennent des noms de clients, des decisions,
+# des engagements et des anomalies comptables. Avant chaque `git push` depuis un
+# poste en service, verifiez ce qu'ils contiennent :
+#
+#     git diff --stat .claude/ETAT_*.md .claude/JOURNAL.md
+#
+# Si vous utilisez ce depot comme poste de travail ET comme gabarit publie,
+# decommentez les quatre lignes ci-dessous : le gabarit restera celui du
+# premier commit, et vos donnees ne bougeront plus.
+#
+# .claude/ETAT_projets.md
+# .claude/ETAT_calendrier.md
+# .claude/ETAT_courriels_poste.md
+# .claude/ETAT_comptabilite.md
+# ---------------------------------------------------------------------------

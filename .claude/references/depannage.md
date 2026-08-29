@@ -197,7 +197,7 @@ expéditeurs, dates. Utile pour prouver qu'un cache est vide, inventorier une
 boîte sur un poste où Outlook ne démarre plus, ou auditer un fichier récupéré.
 
 ```bash
-python scripts/ost_reader.py "C:\chemin\vers\fichier.ost"
+python .claude/scripts/ost_reader.py "C:\chemin\vers\fichier.ost"
 ```
 
 Points à connaître sur le format, vérifiés en pratique :

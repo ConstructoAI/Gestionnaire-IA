@@ -96,8 +96,12 @@ Le hub est `.claude\CLAUDE.md` — le seul des six qui se charge tout seul. Cinq
 vivent à côté et **ne se chargent pas** : `ETAT_projets` · `ETAT_calendrier` ·
 `ETAT_courriels_poste` · `ETAT_comptabilite` · `JOURNAL`.
 
-🔴 **Celui que TU alimentes : `.claude\ETAT_courriels_poste.md`** — le **journal des
-engagements**. C'est ta passe qui le nourrit, et personne d'autre ne le peut :
+🔴 **Celui que ta passe ALIMENTE — mais que TU N'ÉCRIS PAS :**
+`.claude\ETAT_courriels_poste.md`, le **journal des engagements**. Tu es le seul à pouvoir
+*mesurer* ce qui s'y porte ; c'est le chef qui l'écrit. **Remets-lui la ligne toute faite**,
+avec sa date et la commande qui la fonde. *(Tranché le 2026-08-29 : ce fichier te déclarait
+responsable de l'écriture alors que tes outils sont en lecture seule — ni `Write` ni `Edit` —
+et se contredisait onze lignes plus bas.)*
 
 - Dans les **Éléments envoyés**, repère ce qui a été **promis** depuis la dernière passe — un
   prix, une date, un document, « je vous reviens là-dessus ». C'est là que les promesses

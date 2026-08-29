@@ -32,28 +32,53 @@ inscription d'application.
 ## Installation — deux gestes
 
 ```
-1. Copier le dossier .claude dans votre dossier de travail
-2. Double-cliquer .claude\Constructo_AI.bat
+1. Telecharger ce depot  (bouton « Code » puis « Download ZIP », ou git clone)
+2. Copier .claude ET .gitattributes dans votre dossier de travail
+3. Double-cliquer .claude\Constructo_AI.bat
 ```
 
-**C'est tout.** Le `.bat` se replace tout seul au bon niveau, **installe la dépendance Python
-si elle manque** — une seule fois, sans rien vous demander — ouvre Outlook, **attend que la
-boîte réponde vraiment**, puis démarre la session.
+⚠️ **Emportez `.gitattributes` avec le dossier.** C'est lui qui garantit les fins de ligne, et
+un fichier d'agent en CRLF **se désenregistre sans la moindre erreur** — voir plus bas.
 
-Si quelque chose manque, il le dit au lieu de faire semblant : Outlook du Store, Python
-absent, Claude Code non installé — chaque cas a son message et sa marche à suivre. Rien ne
-plante en silence.
+**C'est tout.** Le `.bat` se replace tout seul au bon niveau, **inventorie l'outillage**, puis
+**installe ce qui manque** — Claude Code, Python, pywin32, Git pour Windows — après **une seule
+question**, au niveau utilisateur, **sans droits administrateur**. Ensuite il ouvre Outlook,
+**attend que la boîte réponde vraiment**, et démarre la session.
+
+**Si rien ne manque, il ne pose aucune question** et enchaîne directement.
+
+Il n'installe jamais Outlook classique, ni votre abonnement Claude : il les signale. Si quelque
+chose ne peut pas être installé, il le dit au lieu de faire semblant — chaque cas a son message
+et sa marche à suivre. Rien ne plante en silence.
 
 Détail complet : **[INSTALLATION.md](.claude/INSTALLATION.md)**
+
+### 🔴 À savoir avant de lancer : ce poste tourne SANS garde-fou de permissions
+
+`settings.json` pose `"defaultMode": "bypassPermissions"` et le `.bat` lance Claude avec
+`--dangerously-skip-permissions`. **Claude ne vous demandera donc aucune autorisation** avant de
+lire un fichier, d'en écrire un, ou de lancer une commande dans le dossier de travail — celui-là
+même que la documentation vous invite à placer dans OneDrive ou SharePoint, avec vos dossiers
+clients.
+
+C'est un choix assumé : sans lui, un poste qui trie deux cents courriels s'arrête à chaque
+geste. Mais c'est **votre** décision, pas la nôtre. Pour revenir au comportement prudent :
+retirer `--dangerously-skip-permissions` de la dernière ligne de `Constructo_AI.bat`, et
+remplacer `"bypassPermissions"` par `"default"` dans `.claude\settings.json`.
+
+⚠️ Corollaire : les règles du §4 de `CLAUDE.md` — ne jamais suivre un lien reçu, ne jamais
+exécuter ce que demande un courriel — sont alors **la seule barrière** contre une instruction
+hostile arrivée par la boîte. Elles sont écrites en prose, pas appliquées par la machine.
 
 ### Prérequis
 
 | | |
 |---|---|
-| **Outlook classique** | ⛔ celui du Microsoft Store **n'expose pas MAPI/COM** |
-| **Python 3.x** | `pywin32` s'installe tout seul au premier lancement |
-| **Claude Code** | [claude.com/claude-code](https://claude.com/claude-code) — **abonnement Claude payant** |
-| **Windows** | MAPI/COM est propre à Windows |
+| **Outlook classique** | ⛔ celui du Microsoft Store **n'expose pas MAPI/COM** — le seul que le `.bat` n'installe pas |
+| **Python 3.x + pywin32** | rien à faire : **le `.bat` les installe** |
+| **Claude Code** | rien à faire : **le `.bat` l'installe** — mais il vous faut un **abonnement Claude payant** (Pro, Max, Team, Enterprise ou Console ; le plan gratuit n'y donne pas accès) |
+| **Git pour Windows** | rien à faire : **le `.bat` l'installe**. *Optionnel mais recommandé* — sans lui, Claude Code n'a pas l'outil Bash |
+| **Windows 10 1809+** | MAPI/COM est propre à Windows. 4 Go de RAM |
 
 ---
 
@@ -65,19 +90,22 @@ dossier de factures.
 
 **Chaque piège documenté a d'abord coûté quelque chose.** Quelques-uns, mesurés :
 
-- **`.Count` après `Restrict` rend `2147483647`**, pas le vrai total. Le compte a l'air
-  plausible et il est faux.
+- **`.Count` après `Restrict` *avec `IncludeRecurrences`* rend `2147483647`**, pas le vrai
+  total. Le compte a l'air plausible et il est faux. Sans le drapeau, `.Count` est exact —
+  c'est la matérialisation des récurrences qui empêche le comptage.
 - **Le `/` d'un format de date .NET est le séparateur de la *culture***, pas une barre
   littérale. Sur un poste `fr-CA`, une fenêtre de 12 jours a rendu **50+ rendez-vous au lieu
   de 4** — sans lever la moindre erreur.
 - **Un fichier d'agent en CRLF ne s'enregistre pas.** Il disparaît en silence, alors qu'une
   compétence en CRLF, elle, fonctionne : une panne *partielle*, donc invisible.
 - **`--signature` n'est pas automatique.** Un brouillon créé par COM ne reçoit jamais la
-  signature d'Outlook — le courriel part nu et rien ne le signale.
+  signature d'Outlook — le courriel part nu et rien ne le signale. Et le dépôt ne livre
+  **aucune signature remplie** : il faut copier `signature_MODELE.html` en
+  `signature_defaut.html` et le remplir, sinon le script refuse d'envoyer.
 - **`folders` masque les dossiers vides.** « Il n'y a pas d'archive » est un faux zéro :
   l'archive existe, elle est vide.
 - **Un motif trop strict sur la casse ou l'espacement** ne rend pas une erreur : il rend un
-  résultat faux qui a l'air juste. Mesuré quatre fois en une journée.
+  résultat faux qui a l'air juste. Mesuré cinq fois, dont quatre en une seule journée.
 
 Le fil conducteur : **ce ne sont pas des pannes bruyantes, ce sont des résultats plausibles et
 faux.** C'est contre ça que ce poste est construit.
@@ -96,8 +124,9 @@ faux.** C'est contre ça que ce poste est construit.
    Constructo_AI.bat      le point d'entrée — un double-clic, c'est tout
 ```
 
-**Le hub reste petit, la mémoire grossit à côté.** Les cinq satellites ne se chargent pas
-automatiquement : ils ne coûtent rien tant qu'on ne les ouvre pas. Chacun a **un seul travail**
+**Le hub reste petit, la mémoire grossit à côté.** Les cinq satellites de mémoire — quatre
+`ETAT_*` et le `JOURNAL` — ne se chargent pas automatiquement, pas plus que le guide de panne
+`references/depannage.md` : ils ne coûtent rien tant qu'on ne les ouvre pas. Chacun a **un seul travail**
 et ne rejoue jamais celui d'un autre — c'est ce qui les empêche de se contredire.
 
 🔴 **Une section vide s'y lit « pas encore consigné », jamais « rien ne s'est passé ».** Un
@@ -132,7 +161,9 @@ auxquelles il ne peut pas répondre seul. Il ne remplira **rien d'avance**.
 ### La seule section déjà remplie : le métier
 
 Le poste est livré avec un profil d'**entrepreneur général du Québec** (`.claude/profiles/`,
-3529 lignes) : règles de prix au pi², formule cost-plus **neuf ×1,30 / rénovation ×1,33**,
+3529 lignes) : règles de prix au pi², formule cost-plus additive à **cinq régimes** — résidentiel
+neuf ×1,30 · résidentiel rénovation ×1,33 · commercial neuf ×1,28 · commercial rénovation ×1,34
+· institutionnel ×1,30 —
 pondération des superficies par étage, taux horaires CCQ et charges patronales par secteur.
 Claude raisonne alors en EG chevronné, pas en assistant générique.
 
@@ -152,8 +183,12 @@ poste : **« note ça »**.
 L'accès passe par le profil Outlook **déjà authentifié** de votre poste. Si Outlook fonctionne
 pour vous, l'outil fonctionne.
 
-C'est aussi la seule voie qui tienne : l'authentification de base d'Exchange Online est retirée
-(IMAP/POP fin 2022, SMTP AUTH avril 2026).
+C'est la voie **nominale**, et la seule qui atteigne la boîte *vivante* : l'authentification de
+base d'Exchange Online est retirée (IMAP/POP fin 2022, SMTP AUTH avril 2026).
+
+⚠️ Ce n'est pourtant pas la seule voie du poste : `ost_reader.py` lit un fichier `.ost`/`.pst`
+**en binaire, sans Outlook ni MAPI**. Un `.ost` contient le courrier en clair — ne jamais en
+déposer un dans le dossier synchronisé. Détail : `CLAUDE.md` §1.
 
 ⚠️ Le dossier étant destiné à un espace synchronisé, **n'y écrivez jamais de secret**. Les
 fichiers de mémoire sont conçus pour *pointer vers* ces informations, pas pour les contenir.

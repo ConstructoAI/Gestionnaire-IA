@@ -44,9 +44,10 @@ ECRIRE DANS UNE SERIE RECURRENTE
 import argparse
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 
-sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")
+sys.stderr.reconfigure(encoding="utf-8", errors="backslashreplace")
 
 OL_CALENDRIER, OL_SUPPRIMES = 9, 3
 CLASS_RDV = 26
@@ -129,11 +130,14 @@ def cmd_list(a):
     items = f.Items
     items.IncludeRecurrences = True          # AVANT le tri — piege 2
     items.Sort("[Start]")
+    # Corrige le 2026-08-29. Les deux premieres affectations de `fin` etaient
+    # mortes — ecrasees par la troisieme — et `--jours 0` produisait une fenetre
+    # [maintenant, maintenant] : 0 rendez-vous, code 0, aucun avertissement.
+    if a.jours < 0:
+        sys.exit("ARRET : --jours doit valoir 0 ou plus (0 = aujourd'hui jusqu'a 23:59).")
     debut = datetime.now()
-    fin = datetime.now().replace(hour=23, minute=59)
-    fin = fin.replace(day=fin.day) if a.jours == 0 else None
-    from datetime import timedelta
-    fin = debut + timedelta(days=a.jours)
+    fin = (debut.replace(hour=23, minute=59, second=59) if a.jours == 0
+           else debut + timedelta(days=a.jours))
     res = items.Restrict("[Start] >= '%s' AND [Start] <= '%s'"
                          % (debut.strftime("%Y-%m-%d %H:%M"), fin.strftime("%Y-%m-%d %H:%M")))
     out, n = [], 0

@@ -270,11 +270,20 @@ def cmd_search(a):
     if a.folder and a.folder.lower() != "all":
         folders = [resolve_folder(a.folder, a.account)]
     else:
-        folders = list(_walk(store_root(a.account), maxdepth=3))
+        # maxdepth aligne sur `folders` (5) le 2026-08-29 : a 3, un message
+        # dans un dossier profond etait VISIBLE dans `folders` et INVISIBLE
+        # a `search`, sans un mot. Faux zero de la section 4.
+        folders = list(_walk(store_root(a.account), maxdepth=5))
     rows = []
     for f in folders:
         try:
-            for m in iter_items(f, 500):
+            vus = iter_items(f, 500)
+            # Plafond rendu VISIBLE le 2026-08-29 : au-dela, une correspondance
+            # plus ancienne etait perdue sans un mot. Un zero ne vaut que prouve.
+            if len(vus) >= 500:
+                print("[avertissement] %s : plafond de 500 messages atteint - les plus "
+                      "anciens n'ont PAS ete examines." % folder_path(f), file=sys.stderr)
+            for m in vus:
                 if matches(m, a.query):
                     rows.append(brief(m, 160))
                     if len(rows) >= a.limit:
@@ -314,9 +323,13 @@ def cmd_thread(a):
     src = ns().GetItemFromID(a.id)
     topic = (src.ConversationTopic or src.Subject or "").strip().lower()
     rows = []
-    for f in _walk(store_root(a.account), maxdepth=3):
+    for f in _walk(store_root(a.account), maxdepth=5):   # aligne sur folders, 2026-08-29
         try:
-            for m in iter_items(f, 500):
+            vus = iter_items(f, 500)
+            if len(vus) >= 500:
+                print("[avertissement] %s : plafond de 500 messages atteint - le fil peut "
+                      "etre incomplet." % folder_path(f), file=sys.stderr)
+            for m in vus:
                 if (m.ConversationTopic or "").strip().lower() == topic:
                     rows.append(brief(m, 400))
         except Exception:
@@ -411,9 +424,9 @@ def charger_signature(nom):
     INFONUAGIQUES : elles vivent dans la boîte Microsoft 365 et se gèrent depuis
     Outlook Web. Elles ne redescendent PAS dans
     `%APPDATA%\\Microsoft\\Signatures` — mesure du 2026-08-17 : ce dossier ne
-    contenait que cinq signatures périmées, dont deux d'entreprises antérieures
-    (`estimationls.ca`, `adamgroup.com`), et AUCUNE des cinq réellement
-    utilisées. Et un brouillon créé par COM ne reçoit jamais de signature :
+    contenait que cinq signatures périmées, dont deux d'entreprises antérieures,
+    et AUCUNE des cinq réellement utilisées. Et un brouillon créé par COM ne
+    reçoit jamais de signature :
     Outlook ne les applique que dans sa propre fenêtre de rédaction.
 
     La signature a donc été extraite d'un COURRIEL RÉELLEMENT ENVOYÉ — la seule
@@ -421,18 +434,29 @@ def charger_signature(nom):
     resserrer les bornes : une première extraction avait emporté la réponse
     citée, donc l'adresse du destinataire de ce message-là.
     """
+    # Le gabarit n'est pas une signature. Ajouté le 2026-08-29 : un dépôt cloné
+    # ne porte QUE `MODELE`, et `--signature MODELE` réussissait — le courriel
+    # partait signé « PRENOM NOM / adresse@exemple.ca » chez un vrai client.
+    if nom.strip().upper() == "MODELE":
+        raise SystemExit(
+            "refus : MODELE est le GABARIT, pas une signature.\n"
+            "Il porte encore PRENOM NOM et adresse@exemple.ca.\n"
+            "Copiez profiles/signature_MODELE.html en profiles/signature_defaut.html,\n"
+            "remplissez-le depuis un courriel RÉELLEMENT ENVOYÉ, puis réessayez.")
     chemin = os.path.join(RACINE, "profiles", f"signature_{nom}.html")
     if not os.path.exists(chemin):
         dispo = []
         dossier = os.path.join(RACINE, "profiles")
         if os.path.isdir(dossier):
             dispo = [f[10:-5] for f in os.listdir(dossier)
-                     if f.startswith("signature_") and f.endswith(".html")]
+                     if f.startswith("signature_") and f.endswith(".html")
+                     and f != "signature_MODELE.html"]
         raise SystemExit(
             f"signature introuvable : {chemin}\n"
             f"disponibles : {', '.join(dispo) if dispo else '(aucune)'}\n"
-            f"Pour en ajouter une : l'extraire d'un courriel envoyé qui la porte,\n"
-            f"et l'écrire dans profiles/signature_<nom>.html")
+            f"Le dépôt ne livre volontairement AUCUNE signature remplie.\n"
+            f"Copiez profiles/signature_MODELE.html en profiles/signature_defaut.html,\n"
+            f"puis remplissez-le depuis un courriel réellement envoyé.")
     with io.open(chemin, encoding="utf-8") as f:
         return f.read()
 
@@ -505,7 +529,13 @@ def cmd_reply(a):
         tete, _ = _corps_avec_signature(a)
         r.HTMLBody = tete + (r.HTMLBody or "")
     else:
-        r.Body = (a.body or "") + "\n\n" + (r.Body or "")
+        # Corrige le 2026-08-29 : affecter `.Body` sur une reponse dont
+        # l'original est HTML convertit TOUT le fil cite en texte brut. On passe
+        # par HTMLBody, comme la branche --signature juste au-dessus.
+        echappe = ((a.body or "").replace("&", "&amp;").replace("<", "&lt;")
+                   .replace(">", "&gt;").replace("\n", "<br>"))
+        r.HTMLBody = ('<div style="font-family:Aptos,Calibri,sans-serif;font-size:12pt">'
+                      + echappe + '</div><br>' + (r.HTMLBody or ""))
     r.Save()
     print(json.dumps(dict(status="réponse enregistrée en brouillon", id=r.EntryID,
                           subject=r.Subject, to=r.To,
@@ -656,7 +686,8 @@ def main():
 
 if __name__ == "__main__":
     try:
-        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="backslashreplace")
     except Exception:
         pass
     main()

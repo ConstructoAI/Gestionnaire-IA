@@ -137,6 +137,36 @@ Pour les pannes de **boîte** — vide, désynchronisée, MAPI muet — c'est un
 
 ---
 
+## Vous avez Gmail ? Ce n'est pas un obstacle
+
+Le poste ne parle pas à Microsoft, il parle à **Outlook**. Tout ce qu'Outlook héberge, il le
+pilote — y compris un compte **Gmail**.
+
+1. Dans Outlook classique : **Fichier → Ajouter un compte**, saisir l'adresse Gmail.
+2. Outlook ouvre la fenêtre de connexion **Google** ; autoriser l'accès.
+3. Relancer `Constructo_AI.bat`, puis vérifier que le compte est vu :
+
+```bash
+python .claude/scripts/outlook_mail.py accounts
+```
+
+Le compte Gmail doit apparaître dans la liste. Ensuite, `--account "mon.adresse@gmail.com"`
+vise cette boîte, et **tout le reste fonctionne à l'identique** : lire, chercher, rédiger,
+classer, le calendrier.
+
+🟢 **Aucun secret n'est stocké pour autant** : c'est Outlook qui détient l'authentification
+Google, pas ce poste. La promesse du §1 tient.
+
+⚠️ *Établi par lecture du code le 2026-08-29, pas encore essayé sur un vrai compte Gmail. Si
+vous êtes la première personne à le faire, consignez ce que rend `accounts` dans
+`.claude\JOURNAL.md`.*
+
+⚠️ **Sans Outlook du tout**, le poste démarre quand même : les **dossiers de projets** et la
+**comptabilité** fonctionnent parfaitement. Seuls les courriels et le calendrier restent
+inaccessibles, et le `.bat` le dit au lieu de faire semblant.
+
+---
+
 ## Ce qui se passe au tout premier lancement
 
 Après `[6/6]`, Claude Code affiche deux écrans que ce manuel ne contrôle pas :

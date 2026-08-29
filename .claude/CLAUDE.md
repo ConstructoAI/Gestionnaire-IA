@@ -270,6 +270,31 @@ l'inverse, il se place **après** (`list --json`) — et n'y existe que pour `li
 elle, est juste — `--json` est bien déclaré l.588, avant `add_subparsers` l.589.)*
 `--account "adresse@domaine"` pour viser une boîte précise.
 
+### 🟢 Gmail, IMAP, Exchange : tout ce qu'Outlook héberge, le poste le pilote
+
+**Le moteur n'est PAS lié à un compte Microsoft.** `store_root()`
+(`outlook_mail.py:66-80`) parcourt **tous les magasins MAPI** du profil et les cible par nom :
+
+```python
+for i in range(1, n.Folders.Count + 1):
+    f = n.Folders.Item(i)
+    if account.lower() in f.Name.lower():
+        return f
+```
+
+➜ **Un compte Gmail ajouté dans Outlook classique devient un magasin comme un autre** :
+`accounts` le liste, `--account "mongmail@gmail.com"` le vise, et tout le reste — lire, chercher,
+rédiger, classer, le calendrier — fonctionne sans une ligne de code différente. **Et toujours
+sans un seul secret stocké** : c'est Outlook qui détient l'authentification Google, pas nous.
+
+⚠️ *Établi le 2026-08-29 par lecture du code, **pas encore mesuré sur un vrai compte Gmail**.
+La première personne qui essaie : consigner ici ce que rend `accounts`.*
+
+⚠️ Ne pas confondre avec une connexion Gmail **native** (API Google) : celle-là exigerait un
+`client_id`, un `client_secret` et un jeton de rafraîchissement — donc des secrets, dans un
+dossier synchronisé. C'est exactement ce que le §1 interdit. La voie par Outlook n'a pas ce
+problème.
+
 ### 🔴 `--signature` n'est PAS automatique — sans lui, le courriel part NU
 
 **Un brouillon créé par COM ne reçoit jamais la signature d'Outlook.** Sans ce drapeau, le

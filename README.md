@@ -87,6 +87,7 @@ hostile arrivée par la boîte. Elles sont écrites en prose, pas appliquées pa
 | | |
 |---|---|
 | **Outlook classique** | ⛔ celui du Microsoft Store **n'expose pas MAPI/COM** — le seul que le `.bat` n'installe pas |
+| **Gmail ?** | 🟢 aucun obstacle : ajoutez le compte **dans Outlook classique** et le poste le pilote comme n'importe quelle boîte, toujours **sans secret stocké**. Marche à suivre : [INSTALLATION.md](.claude/INSTALLATION.md) |
 | **Python 3.x + pywin32** | rien à faire : **le `.bat` les installe** |
 | **Claude Code** | rien à faire : **le `.bat` l'installe** — mais il vous faut un **abonnement Claude payant** (Pro, Max, Team, Enterprise ou Console ; le plan gratuit n'y donne pas accès) |
 | **Git pour Windows** | rien à faire : **le `.bat` l'installe**. *Optionnel mais recommandé* — sans lui, Claude Code n'a pas l'outil Bash |

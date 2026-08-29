@@ -136,6 +136,35 @@ For **mailbox** failures — empty, out of sync, MAPI silent — that is another
 
 ---
 
+## Using Gmail? Not a problem
+
+The workstation does not talk to Microsoft, it talks to **Outlook**. Whatever Outlook hosts, it
+drives — including a **Gmail** account.
+
+1. In classic Outlook: **File → Add Account**, enter the Gmail address.
+2. Outlook opens the **Google** sign-in window; grant access.
+3. Relaunch `Constructo_AI.bat`, then check the account is seen:
+
+```bash
+python .claude/scripts/outlook_mail.py accounts
+```
+
+The Gmail account must appear in the list. From then on, `--account "my.address@gmail.com"`
+targets that mailbox, and **everything else works identically**: read, search, draft, file,
+calendar.
+
+🟢 **Still no secret is stored**: Outlook holds the Google authentication, not this workstation.
+The promise in §1 stands.
+
+⚠️ *Established by reading the code on 2026-08-29, not yet tried against a real Gmail account.
+If you are the first to do it, record what `accounts` returns in `.claude\JOURNAL.md`.*
+
+⚠️ **With no Outlook at all**, the workstation still starts: **project folders** and
+**bookkeeping** work perfectly. Only email and calendar stay out of reach, and the `.bat` says
+so instead of pretending.
+
+---
+
 ## What happens on the very first launch
 
 After `[6/6]`, Claude Code shows two screens this manual does not control:

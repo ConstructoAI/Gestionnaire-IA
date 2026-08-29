@@ -84,6 +84,7 @@ mail. They are written in prose, not enforced by the machine.
 | | |
 |---|---|
 | **Classic Outlook** | ⛔ the Microsoft Store one **does not expose MAPI/COM** — the only thing the `.bat` will not install |
+| **On Gmail?** | 🟢 no obstacle: add the account **inside classic Outlook** and the workstation drives it like any other mailbox, still with **no secret stored**. How-to: [INSTALLATION.en.md](.claude/INSTALLATION.en.md) |
 | **Python 3.x + pywin32** | nothing to do: **the `.bat` installs them** |
 | **Claude Code** | nothing to do: **the `.bat` installs it** — but you need a **paid Claude subscription** (Pro, Max, Team, Enterprise or Console; the free plan gives no access) |
 | **Git for Windows** | nothing to do: **the `.bat` installs it**. *Optional but recommended* — without it, Claude Code has no Bash tool |

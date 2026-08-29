@@ -450,8 +450,15 @@ if not defined OUTLOOK_EXE (
   echo   Le nouveau Outlook, celui du Microsoft Store, n'expose pas
   echo   MAPI/COM : le moteur ne sait pas le piloter.
   echo.
+  echo   ^> VOUS AVEZ GMAIL ? Ce n'est pas un obstacle. Ajoutez votre compte
+  echo     Gmail DANS Outlook classique : le poste le voit alors comme
+  echo     n'importe quelle boite, et rien n'est stocke chez nous - c'est
+  echo     Outlook qui detient l'authentification Google.
+  echo.
   echo   Ouvrez Outlook classique a la main si vous voulez les courriels.
-  echo   On continue : les dossiers de projets fonctionnent sans lui.
+  echo   On continue SANS LUI : les dossiers de projets et la comptabilite
+  echo   fonctionnent tres bien, seuls les courriels et le calendrier
+  echo   resteront inaccessibles.
   echo.
   set "MODE_DEGRADE=1"
   goto maj_claude

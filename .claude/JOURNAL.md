@@ -566,6 +566,26 @@ c'est **ce qui etait faux et comment on l'a su** qui servira dans six mois.
   AVEC des parentheses, le cas exact qui fermait la fenetre en 255 vingt minutes plus tot.
   La correction est donc validee en conditions reelles, sur le mode de defaillance lui-meme, et
   plus seulement par ma reproduction en bac a sable.
+
+- **2026-08-29** — DECISION : Gmail passe par Outlook, pas par l'API Google.
+  Demande du proprietaire : "que Claude Code ne soit pas bloque par Outlook, car beaucoup ont
+  Gmail aussi". Mesure avant de repondre : le moteur n'est **PAS** lie a un compte Microsoft.
+  `store_root()` (`outlook_mail.py:66-80`) parcourt TOUS les magasins MAPI du profil et les
+  cible par nom. Un compte Gmail ajoute dans Outlook classique devient donc un magasin comme un
+  autre : `accounts` le liste, `--account` le vise, tout le reste fonctionne a l'identique.
+  ➜ **Zero ligne de code a changer.** Documente dans le hub (§1, l'acces), le manuel FR et EN
+  (la marche a suivre), le README FR et EN (une ligne et un pointeur). Le message du `.bat` sans
+  Outlook annonce desormais que Gmail n'est pas un obstacle.
+  ⚠️ **Etabli par LECTURE DU CODE, pas mesure sur un vrai compte Gmail.** C'est ecrit tel quel
+  dans les quatre documents, avec la consigne de consigner ici ce que rend `accounts` a la
+  premiere personne qui essaie.
+  🔴 **POURQUOI PAS un connecteur Gmail natif** — et pourquoi c'est une decision, pas une
+  paresse : l'API Google exige un `client_id`, un `client_secret` et un jeton de rafraichissement.
+  Le §1 promet "aucun secret a stocker" et le dossier est destine a OneDrive. Un connecteur natif
+  obligerait a poser ces secrets hors du dossier synchronise (`%LOCALAPPDATA%`), plus a faire
+  creer un projet Google Cloud a chaque utilisateur — l'inverse du double-clic. La voie par
+  Outlook n'a aucun de ces problemes : c'est **Outlook** qui detient l'authentification Google.
+  Option gardee ouverte si la voie Outlook se revele insuffisante a l'usage.
   ⚠️ **A NE PAS SUR-INTERPRETER.** Ce qui est etabli : le lanceur va de bout en bout sur un
   poste deja equipe. Ce qui ne l'est PAS, faute d'avoir ete rapporte : laquelle des deux sorties
   de l'etape `[5/6]` s'est affichee — `Outlook repond. Boite accessible.` (MAPI a repondu) ou

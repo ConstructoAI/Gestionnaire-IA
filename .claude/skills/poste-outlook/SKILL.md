@@ -82,6 +82,11 @@ reçoit jamais la signature d'Outlook : sans ce drapeau, le message part **nu**,
 signale. ⚠️ Pour vérifier, chercher le **bloc de coordonnées**, pas une formule de politesse —
 dans une réponse, elle vient du fil cité.
 
+⚠️ **Le dépôt ne livre AUCUNE signature remplie.** Sur un poste neuf, `--signature` **refuse**
+tant que `profiles\signature_defaut.html` n'a pas été créé depuis `signature_MODELE.html` et
+rempli — et il refuse aussi si le gabarit a été copié sans être rempli. Ne pas contourner en
+retirant le drapeau : le signaler au propriétaire du poste. `CLAUDE.md` §2.
+
 **Le registre est PAR CORRESPONDANT** — tutoiement, vouvoiement, formule d'ouverture. Il se
 **mesure** dans les Éléments envoyés, il ne se suppose pas. Lire le dernier envoi à cette
 personne avant de choisir, et consigner ce qu'on mesure dans `CLAUDE.md` §2.
@@ -149,6 +154,9 @@ lecture — **mais seulement si OneDrive tourne**. Processus arrêté, le **list
 ## 4. Comptabilité
 
 Détail et pièges : `CLAUDE.md` §6. Historique et anomalies : `.claude\ETAT_comptabilite.md`.
+
+⚠️ **Plusieurs boîtes ?** `--account "adresse"` vise un magasin précis pour le **courriel**.
+Le **calendrier** n'a pas cet équivalent : il reste sur le magasin par défaut. `CLAUDE.md` §2.
 
 ```bash
 python .claude/scripts/factures.py --dossier "<CHEMIN>" [--annee 2026] \

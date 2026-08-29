@@ -40,8 +40,22 @@ inscription d'application.
 3. Double-cliquer .claude\Constructo_AI.bat
 ```
 
-⚠️ **Emportez `.gitattributes` avec le dossier.** C'est lui qui garantit les fins de ligne, et
-un fichier d'agent en CRLF **se désenregistre sans la moindre erreur** — voir plus bas.
+> **« votre dossier de travail »** = celui qui contient déjà vos projets, généralement un
+> dossier OneDrive ou SharePoint synchronisé. Pas `Téléchargements` : la session démarrerait
+> quand même, mais sans vos dossiers clients.
+
+⚠️ **Emportez aussi `.gitattributes`** : il ne sert que si vous versionnez ce dossier avec git
+un jour, mais il évite alors qu'un fichier d'agent passe en CRLF et **se désenregistre sans la
+moindre erreur** — voir plus bas. Les fichiers téléchargés, eux, ont déjà les bonnes fins de
+ligne.
+
+⚠️ **Windows peut afficher un avertissement de sécurité** au premier double-clic d'un fichier
+téléchargé : cliquez **Exécuter**. Pour l'éviter, clic droit sur le ZIP → Propriétés →
+**Débloquer**, *avant* de décompresser.
+
+🔴 **Avant de lancer, deux choses à savoir** : ce poste tourne **sans garde-fou de permissions**
+(section ci-dessous), et **Claude Code exige un abonnement payant** — autant le savoir avant
+d'installer Python pour rien.
 
 **C'est tout.** Le `.bat` se replace tout seul au bon niveau, **inventorie l'outillage**, puis
 **installe ce qui manque** — Claude Code, Python, pywin32, Git pour Windows — après **une seule
@@ -65,6 +79,10 @@ navigateur — c'est là qu'il faut l'abonnement payant.
 
 Détail complet : **[INSTALLATION.md](.claude/INSTALLATION.md)**
 
+🔴 **Mise à jour : ne recopiez jamais `.claude` par-dessus une installation en service.** Vous
+remplaceriez votre `CLAUDE.md` rempli et vos quatre `ETAT_*` par les gabarits vierges — toute la
+mémoire accumulée, perdue en un glisser-déposer. La marche à suivre est dans le manuel.
+
 ### 🔴 À savoir avant de lancer : ce poste tourne SANS garde-fou de permissions
 
 `settings.json` pose `"defaultMode": "bypassPermissions"` et le `.bat` lance Claude avec
@@ -75,7 +93,8 @@ clients.
 
 C'est un choix assumé : sans lui, un poste qui trie deux cents courriels s'arrête à chaque
 geste. Mais c'est **votre** décision, pas la nôtre. Pour revenir au comportement prudent :
-retirer `--dangerously-skip-permissions` de la dernière ligne de `Constructo_AI.bat`, et
+retirer `--dangerously-skip-permissions` de la ligne `call "%CLAUDE_EXE%" …` de
+`Constructo_AI.bat` — cherchez `dangerously`, ce n'est pas la dernière ligne — et
 remplacer `"bypassPermissions"` par `"default"` dans `.claude\settings.json`.
 
 ⚠️ Corollaire : les règles du §4 de `CLAUDE.md` — ne jamais suivre un lien reçu, ne jamais
@@ -87,7 +106,7 @@ hostile arrivée par la boîte. Elles sont écrites en prose, pas appliquées pa
 | | |
 |---|---|
 | **Outlook classique** | ⛔ celui du Microsoft Store **n'expose pas MAPI/COM** — le seul que le `.bat` n'installe pas |
-| **Gmail ?** | 🟢 aucun obstacle : ajoutez le compte **dans Outlook classique** et le poste le pilote comme n'importe quelle boîte, toujours **sans secret stocké**. Marche à suivre : [INSTALLATION.md](.claude/INSTALLATION.md) |
+| **Gmail ?** | 🟢 ajoutez le compte **dans Outlook classique** et le poste pilote son **courriel** comme n'importe quelle boîte, **sans secret stocké**. ⚠️ Son **calendrier**, non : il faudrait en faire le compte par défaut. *Établi par lecture du code, pas encore essayé sur un vrai compte Gmail.* [Marche à suivre](.claude/INSTALLATION.md) |
 | **Python 3.x + pywin32** | rien à faire : **le `.bat` les installe** |
 | **Claude Code** | rien à faire : **le `.bat` l'installe** — mais il vous faut un **abonnement Claude payant** (Pro, Max, Team, Enterprise ou Console ; le plan gratuit n'y donne pas accès) |
 | **Git pour Windows** | rien à faire : **le `.bat` l'installe**. *Optionnel mais recommandé* — sans lui, Claude Code n'a pas l'outil Bash |
@@ -139,7 +158,9 @@ faux.** C'est contre ça que ce poste est construit.
    scripts/               le moteur — outlook_mail · outlook_calendar · veille_poste
                                       factures · check_setup · ost_reader
    skills/ · agents/      la méthode, et un agent délégué pour les passes longues
-   ETAT_*.md · JOURNAL.md la mémoire — ne se charge PAS toute seule
+   ETAT_*.md              la mémoire — ne se charge PAS toute seule, et arrive VIDE
+   JOURNAL.md             l'histoire du poste — arrive NON vide, avec les mesures
+                                                 de sa construction
    Constructo_AI.bat      le point d'entrée — un double-clic, c'est tout
 ```
 

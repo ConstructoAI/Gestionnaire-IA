@@ -586,6 +586,126 @@ c'est **ce qui etait faux et comment on l'a su** qui servira dans six mois.
   creer un projet Google Cloud a chaque utilisateur — l'inverse du double-clic. La voie par
   Outlook n'a aucun de ces problemes : c'est **Outlook** qui detient l'authentification Google.
   Option gardee ouverte si la voie Outlook se revele insuffisante a l'usage.
+
+---
+
+## Seconde campagne du 2026-08-29 — verification des manuels FR/EN, cinq agents
+
+- **2026-08-29** — 🔴 LE HUB DECLARAIT CASSES DES DEFAUTS CORRIGES LE MATIN MEME.
+  Le pire faux durable de la journee, et il venait de moi. Trois cas mesures :
+  · `§3 piege 7` interdisait `--jours 0` **qui fonctionne** depuis le matin, et citait un bloc de
+  code qui n'existe plus ; · `§3 piege 6` accusait `check_setup.py` de ne pas avoir de
+  `reconfigure` — il en a un depuis le matin, et **les six** scripts sont en
+  `backslashreplace` ; · `§6` decrivait comme vivante la perte de factures par doublon
+  horodatage+client, corrigee le matin.
+  ⚠️ Mecanisme : le hub a ete corrige le matin, le code l'apres-midi. **Personne n'est
+  revenu sur le hub.** Un fichier qui « fait foi » et qu'on ne relit pas apres avoir touche au
+  code devient un piege en une journee.
+  ➜ Les trois remplaces. Les passages corriges portent desormais 🟢 et disent que le defaut a
+  ete ferme, avec renvoi au journal pour l'histoire.
+
+- **2026-08-29** — 🔴 DIX REFERENCES `fichier:ligne` DU HUB POINTAIENT VERS DU CODE SANS RAPPORT.
+  `outlook_mail.py:645` annonce comme `p.parse_args()` : c'est
+  `add("accounts", cmd_accounts, ...)`. `outlook_calendar.py:201-203` annonce comme
+  l'avertissement SERIE : c'est `_verrou`/`_ns`/`GetItemFromID`. Etc.
+  ⚠️ Cause : les scripts ont ete corriges apres que le hub ait ecrit ses references. Toutes les
+  lignes ont glisse. Meme les corrections proposees par l'agent qui a trouve le probleme etaient
+  deja fausses au moment ou il les a ecrites.
+  ➜ **Nouvelle discipline, posee en tete du §8 :** citer des SYMBOLES, pas des numeros de ligne.
+  `store_root()`, `charger_signature`, `cmd_delete` survivent aux corrections ;
+  `outlook_mail.py:645` non. Les references du hub ont ete converties.
+
+- **2026-08-29** — 🔴 J'AI PROMIS UN CALENDRIER GMAIL QUI N'EXISTE PAS.
+  Ma section Gmail, ecrite une heure plus tot, affirmait « tout le reste fonctionne a
+  l'identique : lire, chercher, rediger, classer, **le calendrier** ».
+  Mesure : `outlook_calendar.py` n'expose **aucun `--account`** (zero occurrence, contre une
+  dans `outlook_mail.py`), et `_dossiers()` part de `ns.GetDefaultFolder(OL_CALENDRIER)` — le
+  magasin par defaut, et lui seul.
+  ⚠️ Si Gmail est un magasin secondaire, `calendriers` liste le calendrier du compte principal
+  **sans le dire**. Un faux zero de plus, et je l'avais documente comme une fonctionnalite.
+  ➜ Corrige dans les cinq endroits ou la promesse figurait : hub, README FR et EN, manuel FR et
+  EN, plus le message du `.bat`. Le courriel Gmail marche ; le calendrier exige que Gmail soit
+  le compte par defaut.
+
+- **2026-08-29** — 🔴 LA FENETRE « COPIE MAIS PAS ENCORE REMPLI » N'ETAIT PAS GARDEE.
+  Refuser `--signature MODELE` ne suffisait pas. Le manuel demande de COPIER
+  `signature_MODELE.html` en `signature_defaut.html` PUIS d'y coller son bloc ; entre les deux,
+  le fichier existe et `charger_signature` le charge sans broncher.
+  **Mesure : un `draft --signature` a reellement cree un brouillon dans une vraie boite**, corps
+  = « y PRENOM NOM TITRE NOM DE L'ENTREPRISE ... adresse@exemple.ca ... Ville, QC A0A 0A0 ».
+  Le brouillon a ete supprime (Elements supprimes, reversible).
+  ➜ `charger_signature` refuse desormais sur le CONTENU : six marqueurs cherches, et le refus
+  liste ceux qui restent. Non-regression verifiee : une signature remplie passe toujours.
+  ⚠️ Troisieme fois que la signature mord. Le garde-fou nominal ne suffisait pas ; c'est le
+  contenu qu'il fallait tester.
+
+- **2026-08-29** — 🔴 UNE MISE A JOUR DETRUIT LA MEMOIRE, ET AUCUN MANUEL NE LE DISAIT.
+  Les cinq satellites sont livres VERSIONNES (`JOURNAL.md` 594 l., les quatre `ETAT_*` de 58 a
+  76 l.). Or l'installation enseignee est « copier `.claude` dans votre dossier de travail ».
+  Refaire ce geste apres une mise a jour **remplace `CLAUDE.md` rempli et les quatre `ETAT_*`
+  par les gabarits**. Grep sur les deux manuels : `git pull` 0, `retelecharg` 0, `ecrase` 0.
+  ➜ Section « Mettre a jour le poste » ajoutee aux quatre documents, avec la table de ce qui se
+  recopie et de ce qui ne se touche jamais, et la consigne de sauvegarde prealable.
+
+- **2026-08-29** — 🔴 SUR MACHINE NEUVE, LE REFLEXE DU DEBUTANT FERMAIT LE POSTE.
+  L'invite propose `[O/N, defaut N]`. Devant une invite, un non-technicien appuie sur Entree.
+  Entree → `N` → et si Claude Code manque, `exit /b 1`. Le manuel lui avait pourtant promis un
+  mode degrade.
+  ➜ Le `.bat` previent maintenant AVANT l'invite quand Claude Code manque, et affiche
+  « Tapez O puis Entree. ENTREE SEULE VAUT NON. » Les manuels disent la meme chose, et la
+  promesse de mode degrade a ete corrigee : elle ne vaut que si Claude Code est deja installe.
+
+- **2026-08-29** — 🔴 LANCER DEPUIS LE DOSSIER TELECHARGE « MARCHAIT ».
+  `.claude\CLAUDE.md` existe dans le ZIP decompresse, donc le garde-fou d'ouverture ne mord pas :
+  la session demarre, enracinee dans Telechargements, sans les dossiers clients et hors OneDrive.
+  ➜ Le `.bat` detecte et avertit, avec `pause`.
+  ⚠️ **Et mon premier controle etait casse.** Je l'avais ecrit
+  `echo %CD% | findstr /C:"\Downloads\"` — le tube echoue EN SILENCE des que le chemin contient
+  une parenthese, exactement comme un bloc. Mesure : depuis
+  `...\Downloads\Gestionnaire-IA-main (1)`, resultat vide. Refait par substitution de chaine
+  (`if not "!_CDT:\Downloads\=!"=="!_CDT!"`), verifie : l'avertissement se declenche.
+  **J'ai reproduit en une heure le piege que je venais de documenter.**
+
+- **2026-08-29** — Le mur de la langue, mesure pour la premiere fois.
+  Un anglophone lit un manuel anglais, puis rencontre : **121 `echo` dans le `.bat` dont ~113 en
+  francais et 0 en anglais** · les **9 blocs d'echec** du lanceur, ~45 lignes · `CLAUDE.md`,
+  **728 lignes chargees a chaque session, 100 % francais** · **au moins 67 chaines utilisateur**
+  dans les scripts Python, dont 12 `sys.exit("ARRET :")` et 20 `help=` — donc `--help`
+  entierement francais · `check_setup.py`, le portier impose par le §1, qui affiche `[ECHEC]`.
+  ⚠️ Et `README.en.md` — la porte d'entree — **ne contenait pas une seule fois le mot
+  « French »**. Il donnait une recette complete en trois gestes et parlait d'« a single
+  question » sans dire qu'elle etait francaise ni qu'Entree vaut NON.
+  ➜ Encadre en tete du README anglais, et avertissement ajoute sur les messages d'echec.
+  🔴 **Ce mur n'est pas ferme, il est signale.** Traduire le `.bat`, `CLAUDE.md` et les scripts
+  reste un chantier entier, non entrepris.
+
+- **2026-08-29** — Qualite de l'anglais : dix calques corriges.
+  Le pire : `the file that **makes authority**` — calque brut de « fait foi », **sans aucun sens
+  en anglais**, et mis en italique comme s'il etait intentionnel. Puis
+  `Claude will ask you for **no authorization**` (syntaxe francaise, dans la phrase la plus
+  importante des deux documents) · `moves itself to the right **level**` (le geste central du
+  `.bat`, incomprehensible) · `five **regimes**` (en anglais : regime politique) ·
+  `four **reflexes**` · `**unregisters** itself` · `never installs ... **nor**` ·
+  `That prompt` sans antecedent · `The promise in **§1**` alors que le document anglais n'a
+  aucune section numerotee · `memory files` vs `living files` pour la meme phrase source.
+  ➜ Tous corriges. **CCQ** est desormais glose (« Quebec's construction industry commission,
+  whose wage scales are set by decree ») et `taux` traduit entre parentheses.
+
+- **2026-08-29** — Ce que la campagne a CONFIRME de bon, et qu'il ne faut pas re-auditer :
+  **28 sections sur 28 appariees** FR/EN, meme ordre · **zero ecart de chiffre** entre les deux
+  langues, verifie mecaniquement en comparant les multi-ensembles de jetons numeriques · les
+  **20 liens** Markdown valides, chaque langue pointant vers sa propre langue · la regle de
+  preseance en tete des quatre fichiers · zero ponctuation francaise residuelle dans l'anglais ·
+  virgule decimale correctement convertie en point · le local **byte-identique** au publie ·
+  aucune fuite, tous les motifs valides par un temoin positif.
+
+- **2026-08-29** — ⚠️ RESTE OUVERT apres cette campagne, et assume :
+  · le mur de la langue (le `.bat`, `CLAUDE.md`, les scripts restent francais) ·
+  `depannage.md` ne couvre que la boite, pas l'installation, et n'est pas traduit ·
+  aucun numero de version ni CHANGELOG du poste lui-meme · le depot n'embarque toujours **aucun
+  test** : tout ce qui a ete verifie aujourd'hui l'a ete a la main, dans un dossier temporaire,
+  et est perdu · la question APCHQ · et le calendrier Gmail, qui exigerait un `--account` dans
+  `outlook_calendar.py` — chantier identifie, non entrepris.
   ⚠️ **A NE PAS SUR-INTERPRETER.** Ce qui est etabli : le lanceur va de bout en bout sur un
   poste deja equipe. Ce qui ne l'est PAS, faute d'avoir ete rapporte : laquelle des deux sorties
   de l'etape `[5/6]` s'est affichee — `Outlook repond. Boite accessible.` (MAPI a repondu) ou

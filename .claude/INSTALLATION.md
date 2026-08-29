@@ -56,7 +56,9 @@ que ce manuel vous invite à placer dans OneDrive ou SharePoint, avec vos dossie
 
 C'est un choix assumé : sans lui, un poste qui trie deux cents courriels s'arrête à chaque
 geste. Mais c'est **votre** décision. Pour revenir au comportement prudent : retirer
-`--dangerously-skip-permissions` de la dernière ligne de `Constructo_AI.bat`, et remplacer
+`--dangerously-skip-permissions` de la ligne `call "%CLAUDE_EXE%" …` de `Constructo_AI.bat`
+(cherchez `dangerously` dans le fichier — ce n'est **pas** la dernière ligne, les sous-routines
+viennent après), et remplacer
 `"bypassPermissions"` par `"default"` dans `.claude\settings.json`.
 
 ⚠️ Corollaire : les quatre règles du §4 de `CLAUDE.md` — ne jamais suivre un lien reçu, ne
@@ -74,9 +76,11 @@ machine.
 **2. Copier `.claude` ET `.gitattributes`** dans le dossier de travail : celui qui contient
 déjà vos projets, généralement un dossier OneDrive ou SharePoint synchronisé.
 
-⚠️ **N'oubliez pas `.gitattributes`.** C'est lui qui garantit les fins de ligne, et un fichier
-d'agent en CRLF **se désenregistre sans la moindre erreur** — voir « Deux règles techniques »
-plus bas.
+⚠️ **Emportez aussi `.gitattributes`.** Il ne sert que si vous versionnez un jour ce dossier
+avec git — il ne coûte rien, et il évite qu'un `git init` futur convertisse les fichiers et
+**désenregistre l'agent sans la moindre erreur** (voir « Deux règles techniques » plus bas).
+Les fichiers que vous venez de télécharger, eux, ont déjà les bonnes fins de ligne : c'est le
+`.gitattributes` **du dépôt** qui s'en est chargé à l'export.
 
 ```
 Mon dossier de travail\
@@ -87,6 +91,14 @@ Mon dossier de travail\
 
 **3. Double-cliquer `.claude\Constructo_AI.bat`.**
 
+⚠️ **Windows peut afficher un avertissement de sécurité** au premier double-clic : c'est normal
+pour un fichier téléchargé, cliquez **Exécuter**. Pour l'éviter, faites-le *avant* de
+décompresser : clic droit sur le ZIP → **Propriétés** → cocher **Débloquer**.
+
+⚠️ **Lancez-le depuis votre dossier de travail, pas depuis `Téléchargements`.** Rien ne vous
+arrêtera si vous oubliez l'étape 2 : la session démarrera, mais enracinée dans le dossier
+décompressé — sans vos dossiers clients, et hors de OneDrive.
+
 C'est tout. **Vous n'avez aucune commande à taper.** Au premier lancement, il dresse l'inventaire
 de ce qui est présent, vous montre la liste de ce qui manque, et **demande une seule fois** :
 
@@ -94,7 +106,7 @@ de ce qui est présent, vous montre la liste de ce qui manque, et **demande une 
   Il manque :
     - Claude Code       installateur officiel, sans droits admin
     - pywin32           le pont vers Outlook
-    - Git pour Windows  optionnel : donne l'outil Bash a Claude
+    - Git pour Windows  optionnel ; DEMANDERA les droits admin
 
   Claude Code, Python et pywin32 s'installent pour VOTRE compte seulement,
   sans elevation : rien n'est modifie pour les autres utilisateurs.
@@ -106,9 +118,15 @@ de ce qui est présent, vous montre la liste de ce qui manque, et **demande une 
   Installer maintenant ? [O/N, defaut N]
 ```
 
-Répondez `O` et il enchaîne tout seul. Répondez autre chose et il démarre quand même, en mode
-dégradé, en disant ce qui restera inaccessible. **Si rien ne manque, la question n'est pas
-posée.**
+⚠️ **Tapez `O` puis Entrée. Entrée seule vaut NON.** `O`, `o`, `oui`, `OUI`, `Y`, `yes` sont
+acceptés ; tout le reste est un refus.
+
+🔴 **Et si Claude Code fait partie de ce qui manque, refuser ferme le poste** — il n'y a alors
+aucune session à démarrer, et le `.bat` le dit avant de s'arrêter. Le mode dégradé n'existe que
+si Claude Code est **déjà** installé : dans ce cas, refuser démarre quand même la session, en
+annonçant ce qui restera inaccessible.
+
+**Si rien ne manque, la question n'est pas posée.**
 
 Pour Claude Code il tente quatre voies dans l'ordre, et s'arrête à la première qui réussit :
 l'installateur officiel par `curl`, puis par PowerShell, puis `winget`, puis Node.js + `npm`.
@@ -151,8 +169,14 @@ python .claude/scripts/outlook_mail.py accounts
 ```
 
 Le compte Gmail doit apparaître dans la liste. Ensuite, `--account "mon.adresse@gmail.com"`
-vise cette boîte, et **tout le reste fonctionne à l'identique** : lire, chercher, rédiger,
-classer, le calendrier.
+vise cette boîte pour le **courriel** : lire, chercher, rédiger, classer — à l'identique.
+
+🔴 **Le calendrier, lui, ne suit pas.** `outlook_calendar.py` n'a pas de `--account` : il
+travaille toujours sur le **calendrier du magasin par défaut**. Si Gmail est un compte
+secondaire, `calendriers` listera le calendrier du compte principal **sans le dire**.
+➜ Pour piloter le calendrier Gmail, il faut en faire le compte **par défaut** d'Outlook.
+*(Mesuré le 2026-08-29 : zéro `--account` dans `outlook_calendar.py`, contre un dans
+`outlook_mail.py`.)*
 
 🟢 **Aucun secret n'est stocké pour autant** : c'est Outlook qui détient l'authentification
 Google, pas ce poste. La promesse du §1 tient.
@@ -164,6 +188,27 @@ vous êtes la première personne à le faire, consignez ce que rend `accounts` d
 ⚠️ **Sans Outlook du tout**, le poste démarre quand même : les **dossiers de projets** et la
 **comptabilité** fonctionnent parfaitement. Seuls les courriels et le calendrier restent
 inaccessibles, et le `.bat` le dit au lieu de faire semblant.
+
+---
+
+## Mettre à jour le poste — 🔴 sans effacer votre mémoire
+
+Quand une nouvelle version sort sur GitHub, **ne recopiez pas `.claude` par-dessus l'ancien**.
+Ce geste — celui de l'installation — **remplacerait votre mémoire par les gabarits vierges**.
+
+| À recopier sans crainte | À NE JAMAIS écraser |
+|---|---|
+| `scripts\` · `skills\` · `agents\` · `references\` | `CLAUDE.md` — vous l'avez rempli |
+| `Constructo_AI.bat` | `ETAT_projets.md` · `ETAT_calendrier.md` · `ETAT_courriels_poste.md` · `ETAT_comptabilite.md` |
+| `requirements.txt` | `JOURNAL.md` — c'est un journal, il ne se remplace pas |
+| | `profiles\signature_defaut.html` — votre signature |
+
+➜ **Avant toute mise à jour : copiez votre dossier `.claude` ailleurs.** Trente secondes qui
+valent des mois de mémoire.
+
+⚠️ Les nouveautés du hub ne se recopient donc pas toutes seules. Le plus simple : ouvrir la
+nouvelle version de `CLAUDE.md` à côté de la vôtre et **reporter à la main** ce qui a changé —
+c'est justement ce que le §8 demande de faire vivre.
 
 ---
 
@@ -248,9 +293,29 @@ supprimer définitivement, signaler toute adresse inconnue. Celles-là protègen
 | `skills\poste-outlook\` | la méthode : trier, chercher, rédiger, chiffrer |
 | `agents\courriels.md` | l'agent délégué pour les passes longues |
 | `profiles\` | votre signature, vos profils métier |
-| `ETAT_*.md` · `JOURNAL.md` | 🛰️ la mémoire — **ne se chargent pas seuls**, ils grossissent à l'usage |
+| `ETAT_*.md` | 🛰️ la mémoire — **ne se chargent pas seuls**, ils arrivent **vides** et grossissent à l'usage |
+| `JOURNAL.md` | 🛰️ l'histoire du poste. ⚠️ Il arrive **NON vide** : il porte les mesures de sa construction, datées et sourcées. C'est délibéré — ces pièges vous serviront. Ajoutez les vôtres à la suite |
 | `references\depannage.md` | boîte vide, synchronisation figée, mode sans échec |
 | `Constructo_AI.bat` | le point d'entrée |
+
+---
+
+## Désinstaller
+
+Supprimer le dossier `.claude` retire le poste — mais **deux choses survivent**, parce qu'elles
+n'étaient pas dedans :
+
+1. **Les logiciels installés** : Claude Code, Python, pywin32, Git. Ils s'enlèvent par
+   *Paramètres → Applications*, ou `winget uninstall`. Rien ne vous y oblige : ils servent
+   ailleurs.
+2. **Une ligne ajoutée à votre PATH utilisateur** : `%USERPROFILE%\.local\bin`, écrite par le
+   `.bat` pour que `claude` soit tapable depuis n'importe quel terminal. Pour la retirer :
+   *Paramètres → Système → Informations système → Paramètres système avancés → Variables
+   d'environnement → Path (utilisateur)* → sélectionner la ligne → **Supprimer**.
+
+⚠️ Rien n'est écrit ailleurs : aucune clé de registre en dehors de ce PATH, aucun service,
+aucune tâche planifiée. Ce que vous avez rempli — `CLAUDE.md`, les `ETAT_*`, le `JOURNAL`, votre
+signature — part avec le dossier. **Copiez-le avant de supprimer** si vous comptez y revenir.
 
 ---
 

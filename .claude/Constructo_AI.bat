@@ -66,6 +66,20 @@ rem  Claude Code est absent juste apres l'avoir installe.
 set "CLAUDE_BIN=%USERPROFILE%\.local\bin"
 if exist "%CLAUDE_BIN%" set "PATH=%CLAUDE_BIN%;%PATH%"
 
+rem  Avertir si on tourne depuis le dossier telecharge : `.claude\CLAUDE.md`
+rem  y existe, donc le garde-fou plus haut ne mord pas, et la session
+rem  demarrerait enracinee dans Telechargements - sans les dossiers clients et
+rem  hors OneDrive. Mesure du 2026-08-29.
+rem  Par SUBSTITUTION DE CHAINE, pas par `echo %CD% ^| findstr` : mesure du
+rem  2026-08-29, le tube echoue EN SILENCE des que le chemin contient une
+rem  parenthese - la re-analyse du tube casse, exactement comme un bloc.
+rem  Le premier controle ecrit ici ne se declenchait donc jamais.
+set "ALERTE_TELECHARGEMENTS="
+set "_CDT=!CD!"
+if not "!_CDT:\Downloads\=!"=="!_CDT!" set "ALERTE_TELECHARGEMENTS=1"
+if /I "!_CDT:~-10!"=="\Downloads" set "ALERTE_TELECHARGEMENTS=1"
+set "_CDT="
+
 echo.
 echo   ============================================================
 echo                      C O N S T R U C T O   A I
@@ -83,6 +97,16 @@ rem ===========================================================================
 rem  [1/6] INVENTAIRE - on regarde AVANT de proposer quoi que ce soit.
 rem        Rien n'est installe a cette etape. Aucun effet de bord.
 rem ===========================================================================
+if defined ALERTE_TELECHARGEMENTS (
+  echo   ATTENTION : vous lancez depuis votre dossier de telechargements.
+  echo   Le poste va fonctionner, mais il sera enracine ICI - sans vos dossiers
+  echo   clients, et hors de OneDrive.
+  echo   Copiez d'abord .claude et .gitattributes dans votre dossier de travail.
+  echo.
+  pause
+  echo.
+)
+
 echo   [1/6] Inventaire de l'outillage...
 echo.
 
@@ -219,6 +243,12 @@ rem  set /p laisse la variable inchangee. On n'installe alors RIEN plutot que
 rem  d'installer des logiciels sans accord.
 rem  Le prompt n'est pas indente : cmd retire les espaces de tete.
 set "REPONSE=N"
+if defined MANQUE_CLAUDE (
+  echo   ATTENTION : Claude Code fait partie de ce qui manque. Sans lui il n'y a
+  echo   aucune session a demarrer - refuser fermera le poste.
+  echo.
+)
+echo   Tapez O puis Entree. ENTREE SEULE VAUT NON.
 set /p "REPONSE=Installer maintenant ? [O/N, defaut N] "
 echo.
 
@@ -451,9 +481,10 @@ if not defined OUTLOOK_EXE (
   echo   MAPI/COM : le moteur ne sait pas le piloter.
   echo.
   echo   ^> VOUS AVEZ GMAIL ? Ce n'est pas un obstacle. Ajoutez votre compte
-  echo     Gmail DANS Outlook classique : le poste le voit alors comme
-  echo     n'importe quelle boite, et rien n'est stocke chez nous - c'est
-  echo     Outlook qui detient l'authentification Google.
+  echo     Gmail DANS Outlook classique : le poste pilote alors son COURRIEL
+  echo     comme n'importe quelle boite, et rien n'est stocke chez nous -
+  echo     c'est Outlook qui detient l'authentification Google.
+  echo     ^(son CALENDRIER, lui, exige que Gmail soit le compte par defaut^)
   echo.
   echo   Ouvrez Outlook classique a la main si vous voulez les courriels.
   echo   On continue SANS LUI : les dossiers de projets et la comptabilite

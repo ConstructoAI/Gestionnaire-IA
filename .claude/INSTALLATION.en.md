@@ -55,7 +55,9 @@ invites you to place in OneDrive or SharePoint, alongside your client files.
 
 It is a deliberate choice: without it, a workstation triaging two hundred emails stops at every
 step. But it is **your** decision. To return to the cautious behaviour: remove
-`--dangerously-skip-permissions` from the last line of `Constructo_AI.bat`, and replace
+`--dangerously-skip-permissions` from the `call "%CLAUDE_EXE%" …` line of `Constructo_AI.bat`
+— search for `dangerously`; it is **not** the last line, the resolution subroutines come after
+— and replace
 `"bypassPermissions"` with `"default"` in `.claude\settings.json`.
 
 ⚠️ Corollary: the four rules in §4 of `CLAUDE.md` — never follow a link you received, never
@@ -72,8 +74,11 @@ Unzip it wherever you like.
 **2. Copy `.claude` AND `.gitattributes`** into your working folder: the one that already holds
 your projects, usually a synced OneDrive or SharePoint folder.
 
-⚠️ **Do not forget `.gitattributes`.** It is what guarantees line endings, and an agent file in
-CRLF **unregisters itself without raising a single error** — see "Two technical rules" below.
+⚠️ **Take `.gitattributes` too.** It only matters if you ever version this folder with git —
+but then it stops an agent file from turning into CRLF, in which case it **simply never
+registers, without raising a single error** (see "Two technical rules" below). The files you
+just downloaded already have the right line endings: the repository's own `.gitattributes` saw
+to that at export time.
 
 ```
 My working folder\
@@ -84,14 +89,22 @@ My working folder\
 
 **3. Double-click `.claude\Constructo_AI.bat`.**
 
-That's it. **You have no command to type.** On first launch it inventories what is present,
+⚠️ **Windows may show a security warning** the first time you double-click a downloaded file:
+that is normal — click **Run**. To avoid it entirely, do this *before* extracting: right-click
+the ZIP → **Properties** → tick **Unblock**.
+
+⚠️ **Launch it from your working folder, not from `Downloads`.** Nothing will stop you if you
+skip step 2: the session will start, but rooted in the extracted folder — without your client
+files, and outside OneDrive. The `.bat` now warns you when it detects this.
+
+That's it. **There is nothing to type.** On first launch it inventories what is present,
 shows you the list of what is missing, and **asks once**:
 
 ```
   Il manque :
     - Claude Code       installateur officiel, sans droits admin
     - pywin32           le pont vers Outlook
-    - Git pour Windows  optionnel : donne l'outil Bash a Claude
+    - Git pour Windows  optionnel ; DEMANDERA les droits admin
 
   Claude Code, Python et pywin32 s'installent pour VOTRE compte seulement,
   sans elevation : rien n'est modifie pour les autres utilisateurs.
@@ -106,9 +119,15 @@ shows you the list of what is missing, and **asks once**:
 ⚠️ **The `.bat` speaks French only.** `O` means yes (`oui`); `N` means no. `Y`, `yes` and `oui`
 are all accepted; anything else counts as a refusal, and Enter alone means no.
 
-Answer `O` and it runs through on its own. Answer anything else and it still starts, in
-degraded mode, saying what will remain unreachable. **If nothing is missing, the question is
-not asked.**
+⚠️ **Type `O` then Enter. Enter on its own means NO.** `O`, `o`, `oui`, `OUI`, `Y` and `yes`
+are accepted; anything else is a refusal.
+
+🔴 **And if Claude Code is among the missing pieces, refusing closes the workstation** — there
+is no session to start, and the `.bat` says so before stopping. Degraded mode only exists when
+Claude Code is **already** installed: in that case, refusing still starts the session and
+announces what will remain unreachable.
+
+**If nothing is missing, the question is not asked.**
 
 For Claude Code it tries four paths in order, stopping at the first that succeeds: the official
 installer via `curl`, then via PowerShell, then `winget`, then Node.js + `npm`.
@@ -117,8 +136,8 @@ installer via `curl`, then via PowerShell, then `winget`, then Node.js + `npm`.
 Then it moves to the right level, opens Outlook, **waits until the mailbox genuinely answers**,
 and starts the session. If something is missing, it says so instead of pretending.
 
-⏱️ **Allow about ten minutes** on a fresh machine: Python weighs 28 MB and Git 62 MB, and the
-Outlook wait is capped at ~40 seconds.
+⏱️ **Allow about ten minutes** on a fresh machine: Python is a 28 MB download, Git 62 MB, and
+the Outlook wait is capped at ~40 seconds.
 
 ### If an installation fails
 
@@ -150,18 +169,44 @@ python .claude/scripts/outlook_mail.py accounts
 ```
 
 The Gmail account must appear in the list. From then on, `--account "my.address@gmail.com"`
-targets that mailbox, and **everything else works identically**: read, search, draft, file,
-calendar.
+targets that mailbox for **email**: read, search, draft, file — all identical.
 
-🟢 **Still no secret is stored**: Outlook holds the Google authentication, not this workstation.
-The promise in §1 stands.
+🔴 **The calendar does not follow.** `outlook_calendar.py` has no `--account`: it always works
+on the calendar of the **default store**. If Gmail is a secondary account, `calendriers` will
+list the primary account's calendar **without saying so**.
+➜ To drive a Gmail calendar, Gmail must be Outlook's **default** account.
+*(Measured 2026-08-29: zero `--account` in `outlook_calendar.py`, one in `outlook_mail.py`.)*
 
-⚠️ *Established by reading the code on 2026-08-29, not yet tried against a real Gmail account.
+🟢 **No secret is stored, even so**: Outlook holds the Google authentication, not this
+workstation. The promise made in `CLAUDE.md` §1 stands.
+
+⚠️ *Established by reading the code on 2026-08-29, not yet tested against a real Gmail account.
 If you are the first to do it, record what `accounts` returns in `.claude\JOURNAL.md`.*
 
 ⚠️ **With no Outlook at all**, the workstation still starts: **project folders** and
 **bookkeeping** work perfectly. Only email and calendar stay out of reach, and the `.bat` says
 so instead of pretending.
+
+---
+
+## Updating the workstation — 🔴 without wiping your memory
+
+When a new version lands on GitHub, **do not copy `.claude` over the old one**. That gesture —
+the one you used to install — **would replace your memory with the blank templates**.
+
+| Safe to copy over | NEVER overwrite |
+|---|---|
+| `scripts\` · `skills\` · `agents\` · `references\` | `CLAUDE.md` — you filled it in |
+| `Constructo_AI.bat` | `ETAT_projets.md` · `ETAT_calendrier.md` · `ETAT_courriels_poste.md` · `ETAT_comptabilite.md` |
+| `requirements.txt` | `JOURNAL.md` — it is a log; it is never replaced |
+| | `profiles\signature_defaut.html` — your signature |
+
+➜ **Before any update: copy your `.claude` folder somewhere else.** Thirty seconds that are
+worth months of memory.
+
+⚠️ New hub content therefore does not arrive on its own. The simplest way: open the new
+`CLAUDE.md` beside yours and **carry the changes across by hand** — which is exactly what §8
+asks you to keep doing.
 
 ---
 
@@ -192,8 +237,11 @@ recorded yet", never "nothing happened".
 
 ⚠️ **`CLAUDE.md` and the whole workstation are written in French.** Claude reads and answers in
 either language, but the rules, traps and templates it loads are French. Translating them is
-possible — just remember that `CLAUDE.md` is the file that *makes authority*, so it is the one
-to keep correct.
+possible — just remember that `CLAUDE.md` is the **authoritative** file, so it is the one to
+keep correct.
+⚠️ The same applies to what breaks: the launcher's nine failure blocks and the scripts' `ARRET :`
+messages are French too. When something goes wrong — the one moment you really read the
+screen — you will be reading French.
 
 Then put your signature in place:
 
@@ -249,15 +297,35 @@ address. Those protect against **third parties**, not against you.
 | `skills\poste-outlook\` | the method: triage, search, draft, price |
 | `agents\courriels.md` | the delegated agent for long passes |
 | `profiles\` | your signature, your trade profiles |
-| `ETAT_*.md` · `JOURNAL.md` | 🛰️ the memory — **they do not load on their own**, they grow with use |
-| `references\depannage.md` | empty mailbox, frozen sync, safe mode |
+| `ETAT_*.md` | 🛰️ the memory — **they do not load on their own**; they arrive **empty** and grow with use |
+| `JOURNAL.md` | 🛰️ the workstation's history. ⚠️ It arrives **NOT empty**: it carries the measurements behind its construction, dated and sourced. That is deliberate — those traps will serve you. Add yours after them |
+| `references\depannage.md` | empty mailbox, frozen sync, safe mode — ⚠️ *French only, and it covers mailbox faults only, not installation* |
 | `Constructo_AI.bat` | the entry point |
+
+---
+
+## Uninstalling
+
+Deleting the `.claude` folder removes the workstation — but **two things survive**, because
+they were never inside it:
+
+1. **The installed software**: Claude Code, Python, pywin32, Git. Remove them from
+   *Settings → Apps*, or with `winget uninstall`. Nothing forces you to: they are useful
+   elsewhere.
+2. **One line added to your user PATH**: `%USERPROFILE%\.local\bin`, written by the `.bat` so
+   that `claude` can be typed from any terminal. To remove it: *Settings → System → About →
+   Advanced system settings → Environment Variables → Path (user)* → select the line →
+   **Delete**.
+
+⚠️ Nothing else is written: no registry key beyond that PATH entry, no service, no scheduled
+task. Everything you filled in — `CLAUDE.md`, the `ETAT_*` files, the `JOURNAL`, your signature
+— goes with the folder. **Copy it first** if you may come back to it.
 
 ---
 
 ## Two technical rules not to break
 
-🔴 **Files in `.claude\` must stay in LF line endings.** An agent file in CRLF **does not
+🔴 **Files in `.claude\` must keep LF line endings.** An agent file in CRLF **does not
 register** — it disappears from the list without any error. A skill and a `CLAUDE.md` in CRLF
 still work: a **partial** failure, therefore an invisible one. `Constructo_AI.bat`, on the
 other hand, must stay **CRLF** (a `cmd.exe` requirement).
@@ -277,6 +345,10 @@ reason.
 
 Access goes through the machine's **already authenticated** Outlook profile: no password, no
 token, no administrator rights. If Outlook works for you, the tool works.
+
+⚠️ One exception worth knowing: `ost_reader.py` reads an `.ost`/`.pst` file **in binary,
+without Outlook or MAPI**. Such a file holds your mail in the clear — never drop one into the
+synced folder.
 
 ⚠️ Since this folder is meant for a synced space, **never write a secret into it** — password,
 API key, tax account number. The living files are designed to point at that information, not to

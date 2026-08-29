@@ -458,7 +458,26 @@ def charger_signature(nom):
             f"Copiez profiles/signature_MODELE.html en profiles/signature_defaut.html,\n"
             f"puis remplissez-le depuis un courriel réellement envoyé.")
     with io.open(chemin, encoding="utf-8") as f:
-        return f.read()
+        contenu = f.read()
+
+    # Refuser un gabarit COPIE mais PAS ENCORE REMPLI.
+    # Ajouté le 2026-08-29 après mesure : refuser `--signature MODELE` ne suffit
+    # pas. Le manuel demande de copier signature_MODELE.html en
+    # signature_defaut.html PUIS d'y coller son bloc ; entre les deux, le fichier
+    # existe, `charger_signature` le charge sans broncher, et un brouillon part
+    # signé « PRENOM NOM / adresse@exemple.ca ». Mesuré : un `draft --signature`
+    # a réellement produit ce brouillon dans une vraie boîte.
+    MARQUEURS = ("PRENOM NOM", "NOM DE L'ENTREPRISE", "adresse@exemple.ca",
+                 "(000) 000-0000", "A0A 0A0", "www.exemple.ca")
+    restants = [m for m in MARQUEURS if m in contenu]
+    if restants:
+        raise SystemExit(
+            f"refus : la signature '{nom}' n'est pas remplie.\n"
+            f"Elle porte encore : {', '.join(restants)}\n"
+            f"Fichier : {chemin}\n"
+            f"Remplacez ces marqueurs par vos vraies coordonnées, extraites d'un\n"
+            f"courriel RÉELLEMENT ENVOYÉ, puis réessayez.")
+    return contenu
 
 
 def _corps_avec_signature(a):
